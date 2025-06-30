@@ -1,0 +1,252 @@
+.musician-form {
+  min-height: 100vh;
+  padding: var(--spacing-xl) 0;
+  background-color: var(--background-color);
+}
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-xxl);
+}
+
+.form-content {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-step {
+  width: 100%;
+}
+
+.form-step h2 {
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-xl);
+}
+
+.step-subtitle {
+  text-align: center;
+  color: var(--text-light);
+  margin-top: calc(-1 * var(--spacing-md));
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Instrument Grid */
+.instrument-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.instrument-option {
+  padding: var(--spacing-md);
+  border: 2px solid var(--gray-300);
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.instrument-option:hover {
+  border-color: var(--primary-color);
+  background-color: var(--gray-100);
+}
+
+.instrument-option.selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.other-instrument-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: var(--font-body);
+  transition: border-color 0.2s ease;
+}
+
+.other-instrument-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Radio Groups */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+  border-color: var(--primary-color);
+  background-color: var(--gray-100);
+}
+
+.radio-option input[type="radio"] {
+  margin-right: var(--spacing-md);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + span {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Checkbox Groups */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-option:hover {
+  border-color: var(--primary-color);
+  background-color: var(--gray-100);
+}
+
+.checkbox-option input[type="checkbox"] {
+  margin-right: var(--spacing-md);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-option input[type="checkbox"]:checked + span {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Experience Input */
+.experience-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.years-input {
+  width: 100px;
+  padding: var(--spacing-md);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.years-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.years-label {
+  font-size: 1.25rem;
+  color: var(--text-light);
+}
+
+.years-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--gray-200);
+  outline: none;
+  border-radius: var(--radius-lg);
+}
+
+.years-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.years-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Navigation */
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-xxl);
+  gap: var(--spacing-md);
+}
+
+.form-navigation button {
+  min-width: 120px;
+}
+
+.form-navigation button:only-child {
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-md);
+  }
+
+  .instrument-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .radio-option,
+  .checkbox-option {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .form-navigation {
+    flex-direction: column;
+  }
+
+  .form-navigation button {
+    width: 100%;
+  }
+}

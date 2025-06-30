@@ -1,0 +1,31 @@
+.progress-bar-container {
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.3s ease;
+  border-radius: var(--radius-lg);
+}
+
+.progress-steps {
+  margin-top: var(--spacing-sm);
+  text-align: center;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  font-family: var(--font-body);
+}

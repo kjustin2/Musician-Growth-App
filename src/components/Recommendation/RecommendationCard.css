@@ -1,0 +1,118 @@
+.recommendation-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.recommendation-card-high {
+  border-left-color: var(--accent-color);
+}
+
+.recommendation-card-medium {
+  border-left-color: var(--primary-color);
+}
+
+.recommendation-card-low {
+  border-left-color: var(--gray-400);
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.recommendation-icon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.recommendation-icon-marketing {
+  background-color: var(--accent-color);
+}
+
+.recommendation-icon-performance {
+  background-color: var(--primary-color);
+}
+
+.recommendation-icon-networking {
+  background-color: #28a745;
+}
+
+.recommendation-icon-skill {
+  background-color: #6f42c1;
+}
+
+.recommendation-title {
+  flex: 1;
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.recommendation-description {
+  color: var(--text-light);
+  line-height: 1.8;
+  margin-bottom: var(--spacing-lg);
+}
+
+.recommendation-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.priority-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+}
+
+.priority-high {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: var(--accent-color);
+}
+
+.priority-medium {
+  background-color: rgba(91, 78, 159, 0.1);
+  color: var(--primary-color);
+}
+
+.priority-low {
+  background-color: var(--gray-100);
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+  .recommendation-card {
+    padding: var(--spacing-lg);
+  }
+
+  .recommendation-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .recommendation-title {
+    font-size: 1.125rem;
+  }
+}
