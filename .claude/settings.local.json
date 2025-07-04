@@ -10,7 +10,16 @@
       "Bash(npm install)",
       "Bash(npm test)",
       "Bash(npm run lint)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node:*)",
+      "Bash(npm --version)",
+      "Bash(git --version)",
+      "Bash(npm test:*)",
+      "Bash(npm i:*)",
+      "Bash(rm:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(rg:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": []
   }

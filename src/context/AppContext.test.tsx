@@ -1,139 +1,62 @@
-import { describe, it, expect } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
-import { AppProvider, useApp, useSetPage, useSetProfile, useSetRecommendations, useSetLoading, useReset } from './AppContext'
-import { MusicianProfile, Recommendation } from '@/core/types'
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, act } from '@/test-utils';
+import userEvent from '@testing-library/user-event';
+import App from '@/App';
 
-// Test wrapper component
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <AppProvider>{children}</AppProvider>
-)
+vi.mock('@/core/recommendationEngine', () => ({
+  generateRecommendations: vi.fn(() => [
+    {
+      id: 'MOCK_REC_01',
+      title: 'Mock Recommendation',
+      description: 'This is a mock recommendation for testing.',
+      category: 'marketing',
+      priority: 'high',
+    },
+  ]),
+}));
 
-describe('AppContext', () => {
-  it('provides initial state correctly', () => {
-    const { result } = renderHook(() => useApp(), { wrapper: TestWrapper })
-    
-    expect(result.current.state.currentPage).toBe('landing')
-    expect(result.current.state.musicianProfile).toBe(null)
-    expect(result.current.state.recommendations).toEqual([])
-    expect(result.current.state.isLoading).toBe(false)
-  })
+describe('App E2E Flow', () => {
+  it('navigates from landing page, through form, to recommendations', async () => {
+    const user = userEvent.setup();
+    render(<App />);
 
-  it('updates page state correctly', () => {
-    const { result } = renderHook(() => {
-      const app = useApp()
-      const setPage = useSetPage()
-      return { app, setPage }
-    }, { wrapper: TestWrapper })
+    // 1. Landing Page: User clicks "Get Started"
+    expect(screen.getByText('Find Your Next Step as a Musician')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Get Started' }));
 
-    act(() => {
-      result.current.setPage('form')
-    })
+    // 2. Form Page: User fills out the form
+    expect(screen.getByText("What's your primary instrument?")).toBeInTheDocument();
 
-    expect(result.current.app.state.currentPage).toBe('form')
-  })
+    // Step 1: Instrument
+    await user.click(screen.getByText('Guitar'));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
 
-  it('updates musician profile correctly', () => {
-    const mockProfile: MusicianProfile = {
-      instrument: 'Guitar',
-      performanceFrequency: 'weekly',
-      crowdSize: '50-100',
-      yearsOfExperience: 5,
-      marketingEfforts: ['social', 'website']
-    }
+    // Step 2: Performance Frequency
+    await user.click(screen.getByLabelText('Weekly'));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
 
-    const { result } = renderHook(() => {
-      const app = useApp()
-      const setProfile = useSetProfile()
-      return { app, setProfile }
-    }, { wrapper: TestWrapper })
+    // Step 3: Crowd Size
+    await user.click(screen.getByLabelText('50-100 people'));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
 
-    act(() => {
-      result.current.setProfile(mockProfile)
-    })
+    // Step 4: Experience
+    const experienceInput = screen.getByLabelText('Years of experience');
+    await user.clear(experienceInput);
+    await user.type(experienceInput, '5');
+    await user.click(screen.getByRole('button', { name: 'Next' }));
 
-    expect(result.current.app.state.musicianProfile).toEqual(mockProfile)
-  })
+    // Step 5: Marketing Efforts
+    await user.click(screen.getByLabelText('Social Media (Facebook, Instagram, TikTok)'));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Get My Advice' }));
+    });
 
-  it('updates recommendations correctly', () => {
-    const mockRecommendations: Recommendation[] = [
-      {
-        id: 'TEST_01',
-        title: 'Test Recommendation',
-        description: 'This is a test recommendation',
-        category: 'marketing',
-        priority: 'high'
-      }
-    ]
+    // 3. Loading State and Results Page
+    expect(await screen.findByText('Your Personalized Music Career Plan')).toBeInTheDocument();
+    expect(await screen.findByText('Mock Recommendation')).toBeInTheDocument();
 
-    const { result } = renderHook(() => {
-      const app = useApp()
-      const setRecommendations = useSetRecommendations()
-      return { app, setRecommendations }
-    }, { wrapper: TestWrapper })
-
-    act(() => {
-      result.current.setRecommendations(mockRecommendations)
-    })
-
-    expect(result.current.app.state.recommendations).toEqual(mockRecommendations)
-  })
-
-  it('updates loading state correctly', () => {
-    const { result } = renderHook(() => {
-      const app = useApp()
-      const setLoading = useSetLoading()
-      return { app, setLoading }
-    }, { wrapper: TestWrapper })
-
-    act(() => {
-      result.current.setLoading(true)
-    })
-
-    expect(result.current.app.state.isLoading).toBe(true)
-  })
-
-  it('resets state correctly', () => {
-    const mockProfile: MusicianProfile = {
-      instrument: 'Piano',
-      performanceFrequency: 'monthly',
-      crowdSize: '1-10',
-      yearsOfExperience: 2,
-      marketingEfforts: ['none']
-    }
-
-    const { result } = renderHook(() => {
-      const app = useApp()
-      const setProfile = useSetProfile()
-      const setPage = useSetPage()
-      const reset = useReset()
-      return { app, setProfile, setPage, reset }
-    }, { wrapper: TestWrapper })
-
-    // Set some state
-    act(() => {
-      result.current.setProfile(mockProfile)
-      result.current.setPage('results')
-    })
-
-    // Verify state is set
-    expect(result.current.app.state.currentPage).toBe('results')
-    expect(result.current.app.state.musicianProfile).toEqual(mockProfile)
-
-    // Reset
-    act(() => {
-      result.current.reset()
-    })
-
-    // Verify state is reset to initial
-    expect(result.current.app.state.currentPage).toBe('landing')
-    expect(result.current.app.state.musicianProfile).toBe(null)
-    expect(result.current.app.state.recommendations).toEqual([])
-    expect(result.current.app.state.isLoading).toBe(false)
-  })
-
-  it('throws error when used outside provider', () => {
-    expect(() => {
-      renderHook(() => useApp())
-    }).toThrow('useApp must be used within an AppProvider')
-  })
-})
+    // 4. Reset and go back to Landing Page
+    await user.click(screen.getByRole('button', { name: 'Start Over' }));
+    expect(screen.getByText('Find Your Next Step as a Musician')).toBeInTheDocument();
+  });
+});

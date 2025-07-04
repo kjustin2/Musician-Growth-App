@@ -1,10 +1,10 @@
-import { AppProvider, useApp } from '@/context/AppContext';
+import { useApp } from '@/context/AppContext';
 import LandingPage from '@/components/LandingPage/LandingPage';
 import MusicianForm from '@/components/MusicianForm/MusicianForm';
 import RecommendationsList from '@/components/Recommendation/RecommendationsList';
 import './App.css';
 
-function AppContent() {
+function App() {
   const { state } = useApp();
 
   return (
@@ -13,14 +13,6 @@ function AppContent() {
       {state.currentPage === 'form' && <MusicianForm />}
       {state.currentPage === 'results' && <RecommendationsList />}
     </div>
-  );
-}
-
-function App() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
   );
 }
 

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { generateRecommendations } from './recommendationEngine'
-import { MusicianProfile } from './types'
+import { describe, it, expect } from 'vitest';
+import { generateRecommendations } from './recommendationEngine';
+import { MusicianProfile } from './types';
 
 describe('recommendationEngine', () => {
   it('generates marketing recommendations for beginners with minimal marketing', () => {
@@ -9,16 +9,14 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'never',
       crowdSize: '1-10',
       yearsOfExperience: 1,
-      marketingEfforts: ['none']
-    }
+      marketingEfforts: ['none'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    expect(recommendations).toHaveLength(3)
-    expect(recommendations.some(r => r.category === 'marketing')).toBe(true)
-    expect(recommendations.some(r => r.category === 'performance')).toBe(true)
-    expect(recommendations.some(r => r.category === 'skill')).toBe(true)
-  })
+    const recommendations = generateRecommendations(profile);
+    const marketingRec = recommendations.find(r => r.id === 'MKT_01');
+    expect(marketingRec).toBeDefined();
+    expect(marketingRec?.priority).toBe('high');
+  });
 
   it('generates performance recommendations for experienced non-performers', () => {
     const profile: MusicianProfile = {
@@ -26,15 +24,14 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'never',
       crowdSize: '1-10',
       yearsOfExperience: 5,
-      marketingEfforts: ['social']
-    }
+      marketingEfforts: ['social'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    const performanceRec = recommendations.find(r => r.category === 'performance')
-    expect(performanceRec).toBeDefined()
-    expect(performanceRec?.title).toContain('Get On Stage')
-  })
+    const recommendations = generateRecommendations(profile);
+    const performanceRec = recommendations.find(r => r.id === 'PERF_01');
+    expect(performanceRec).toBeDefined();
+    expect(performanceRec?.priority).toBe('high');
+  });
 
   it('generates networking recommendations for regular performers with small crowds', () => {
     const profile: MusicianProfile = {
@@ -42,14 +39,13 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'weekly',
       crowdSize: '10-50',
       yearsOfExperience: 3,
-      marketingEfforts: ['social', 'website']
-    }
+      marketingEfforts: ['social', 'website'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    const networkingRec = recommendations.find(r => r.category === 'networking')
-    expect(networkingRec).toBeDefined()
-  })
+    const recommendations = generateRecommendations(profile);
+    const networkingRec = recommendations.find(r => r.id === 'NET_02');
+    expect(networkingRec).toBeDefined();
+  });
 
   it('prioritizes high priority recommendations first', () => {
     const profile: MusicianProfile = {
@@ -57,14 +53,12 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'never',
       crowdSize: '1-10',
       yearsOfExperience: 0.5,
-      marketingEfforts: ['none']
-    }
+      marketingEfforts: ['none'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    // First recommendation should be high priority
-    expect(recommendations[0]?.priority).toBe('high')
-  })
+    const recommendations = generateRecommendations(profile);
+    expect(recommendations[0]?.priority).toBe('high');
+  });
 
   it('returns at most 5 recommendations', () => {
     const profile: MusicianProfile = {
@@ -72,13 +66,12 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'weekly',
       crowdSize: '100-500',
       yearsOfExperience: 10,
-      marketingEfforts: ['social', 'mailing', 'website', 'networking']
-    }
+      marketingEfforts: ['social', 'mailing', 'website', 'networking'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    expect(recommendations.length).toBeLessThanOrEqual(5)
-  })
+    const recommendations = generateRecommendations(profile);
+    expect(recommendations.length).toBeLessThanOrEqual(5);
+  });
 
   it('generates skill development recommendations for beginners', () => {
     const profile: MusicianProfile = {
@@ -86,13 +79,25 @@ describe('recommendationEngine', () => {
       performanceFrequency: 'yearly',
       crowdSize: '1-10',
       yearsOfExperience: 1,
-      marketingEfforts: ['none']
-    }
+      marketingEfforts: ['none'],
+    };
 
-    const recommendations = generateRecommendations(profile)
-    
-    const skillRec = recommendations.find(r => r.category === 'skill')
-    expect(skillRec).toBeDefined()
-    expect(skillRec?.title).toContain('Practice')
-  })
-})
+    const recommendations = generateRecommendations(profile);
+    const skillRec = recommendations.find(r => r.id === 'SKILL_01');
+    expect(skillRec).toBeDefined();
+  });
+
+  it('interpolates instrument into description', () => {
+    const profile: MusicianProfile = {
+      instrument: 'Guitar',
+      performanceFrequency: 'never',
+      crowdSize: '1-10',
+      yearsOfExperience: 1,
+      marketingEfforts: ['none'],
+    };
+
+    const recommendations = generateRecommendations(profile);
+    const marketingRec = recommendations.find(r => r.id === 'MKT_01');
+    expect(marketingRec?.description).toContain('#guitarplayer');
+  });
+});

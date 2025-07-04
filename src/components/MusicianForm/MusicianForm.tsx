@@ -1,81 +1,91 @@
-import React, { useState, useCallback } from 'react';
+import React, { useReducer, useCallback } from 'react';
 import { MusicianProfile } from '@/core/types';
 import { useSetPage, useSetProfile, useSetLoading } from '@/context/AppContext';
 import Button from '@/components/common/Button';
 import ProgressBar from '@/components/common/ProgressBar';
-import { 
-  INSTRUMENTS, 
-  MARKETING_OPTIONS, 
-  FORM_STEPS, 
-  STEP_LABELS, 
-  RECOMMENDATION_CONFIG,
-  EXPERIENCE_LIMITS 
-} from '@/core/constants';
+import InstrumentStep from './steps/InstrumentStep';
+import PerformanceStep from './steps/PerformanceStep';
+import CrowdStep from './steps/CrowdStep';
+import ExperienceStep from './steps/ExperienceStep';
+import MarketingStep from './steps/MarketingStep';
+import { FORM_STEPS, STEP_LABELS, RECOMMENDATION_CONFIG, EXPERIENCE_LIMITS } from '@/core/constants';
 import './MusicianForm.css';
+
+// Form state and actions
+interface FormState {
+  currentStep: number;
+  formData: Partial<MusicianProfile>;
+  customInstrument: {
+    isOther: boolean;
+    value: string;
+  };
+}
+
+type FormAction = 
+  | { type: 'NEXT_STEP' }
+  | { type: 'PREV_STEP' }
+  | { type: 'SET_INSTRUMENT', payload: string }
+  | { type: 'SET_CUSTOM_INSTRUMENT', payload: string }
+  | { type: 'SET_PERFORMANCE_FREQUENCY', payload: MusicianProfile['performanceFrequency'] }
+  | { type: 'SET_CROWD_SIZE', payload: MusicianProfile['crowdSize'] }
+  | { type: 'SET_YEARS_OF_EXPERIENCE', payload: number }
+  | { type: 'TOGGLE_MARKETING_EFFORT', payload: string };
+
+const initialState: FormState = {
+  currentStep: 1,
+  formData: {
+    instrument: '',
+    performanceFrequency: undefined,
+    crowdSize: undefined,
+    yearsOfExperience: 0,
+    marketingEfforts: []
+  },
+  customInstrument: {
+    isOther: false,
+    value: ''
+  }
+};
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case 'NEXT_STEP':
+      return { ...state, currentStep: Math.min(state.currentStep + 1, FORM_STEPS.TOTAL) };
+    case 'PREV_STEP':
+      return { ...state, currentStep: Math.max(state.currentStep - 1, 1) };
+    case 'SET_INSTRUMENT':
+      if (action.payload === 'Other') {
+        return { ...state, customInstrument: { isOther: true, value: '' }, formData: { ...state.formData, instrument: '' } };
+      } else {
+        return { ...state, customInstrument: { isOther: false, value: '' }, formData: { ...state.formData, instrument: action.payload } };
+      }
+    case 'SET_CUSTOM_INSTRUMENT':
+      return { ...state, customInstrument: { ...state.customInstrument, value: action.payload }, formData: { ...state.formData, instrument: action.payload } };
+    case 'SET_PERFORMANCE_FREQUENCY':
+      return { ...state, formData: { ...state.formData, performanceFrequency: action.payload } };
+    case 'SET_CROWD_SIZE':
+      return { ...state, formData: { ...state.formData, crowdSize: action.payload } };
+    case 'SET_YEARS_OF_EXPERIENCE':
+      return { ...state, formData: { ...state.formData, yearsOfExperience: action.payload } };
+    case 'TOGGLE_MARKETING_EFFORT':
+      const currentEfforts = state.formData.marketingEfforts || [];
+      const newEfforts = currentEfforts.includes(action.payload)
+        ? currentEfforts.filter(id => id !== action.payload)
+        : [...currentEfforts, action.payload];
+      return { ...state, formData: { ...state.formData, marketingEfforts: newEfforts } };
+    default:
+      return state;
+  }
+}
 
 const MusicianForm: React.FC = () => {
   const setPage = useSetPage();
   const setProfile = useSetProfile();
   const setLoading = useSetLoading();
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<Partial<MusicianProfile>>({
-    instrument: '',
-    performanceFrequency: undefined,
-    crowdSize: undefined,
-    yearsOfExperience: 0,
-    marketingEfforts: []
-  });
-
-  const [customInstrument, setCustomInstrument] = useState({
-    isOther: false,
-    value: ''
-  });
-
-  const handleInstrumentChange = useCallback((instrument: string) => {
-    if (instrument === 'Other') {
-      setCustomInstrument({ isOther: true, value: '' });
-      setFormData(prev => ({ ...prev, instrument: '' }));
-    } else {
-      setCustomInstrument({ isOther: false, value: '' });
-      setFormData(prev => ({ ...prev, instrument }));
-    }
-  }, []);
-
-  const handleCustomInstrumentChange = useCallback((value: string) => {
-    setCustomInstrument(prev => ({ ...prev, value }));
-    setFormData(prev => ({ ...prev, instrument: value }));
-  }, []);
-
-  const handleMarketingChange = useCallback((optionId: string) => {
-    setFormData(prev => {
-      const currentEfforts = prev.marketingEfforts || [];
-      const newEfforts = currentEfforts.includes(optionId)
-        ? currentEfforts.filter(id => id !== optionId)
-        : [...currentEfforts, optionId];
-      
-      return { ...prev, marketingEfforts: newEfforts };
-    });
-  }, []);
-
-  const handleNext = useCallback(() => {
-    if (currentStep < FORM_STEPS.TOTAL) {
-      setCurrentStep(prev => prev + 1);
-    }
-  }, [currentStep]);
-
-  const handleBack = useCallback(() => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
-  }, [currentStep]);
+  const [state, dispatch] = useReducer(formReducer, initialState);
+  const { currentStep, formData, customInstrument } = state;
 
   const handleSubmit = useCallback(async () => {
-    if (!isFormValid()) {
-      console.error('Form validation failed');
-      return;
-    }
-
     const finalProfile: MusicianProfile = {
       instrument: customInstrument.isOther ? customInstrument.value : formData.instrument!,
       performanceFrequency: formData.performanceFrequency!,
@@ -87,28 +97,11 @@ const MusicianForm: React.FC = () => {
     setProfile(finalProfile);
     setLoading(true);
     
-    // Simulate processing time
     setTimeout(() => {
       setLoading(false);
       setPage('results');
     }, RECOMMENDATION_CONFIG.LOADING_DELAY_MS);
   }, [customInstrument, formData, setProfile, setLoading, setPage]);
-
-  const isFormValid = useCallback((): boolean => {
-    const hasValidInstrument = customInstrument.isOther 
-      ? customInstrument.value.trim().length > 0
-      : Boolean(formData.instrument);
-    
-    return (
-      hasValidInstrument &&
-      Boolean(formData.performanceFrequency) &&
-      Boolean(formData.crowdSize) &&
-      typeof formData.yearsOfExperience === 'number' &&
-      formData.yearsOfExperience >= EXPERIENCE_LIMITS.MIN &&
-      formData.yearsOfExperience <= EXPERIENCE_LIMITS.MAX &&
-      Boolean(formData.marketingEfforts?.length)
-    );
-  }, [customInstrument, formData]);
 
   const isStepValid = useCallback(() => {
     switch (currentStep) {
@@ -142,240 +135,37 @@ const MusicianForm: React.FC = () => {
           />
 
           <div className="form-content">
-            {/* Step 1: Instrument */}
             {currentStep === FORM_STEPS.INSTRUMENT && (
-              <div className="form-step">
-                <h2>What's your primary instrument?</h2>
-                <div className="instrument-grid">
-                  {INSTRUMENTS.map(instrument => (
-                    <button
-                      key={instrument}
-                      className={`instrument-option ${formData.instrument === instrument ? 'selected' : ''}`}
-                      onClick={() => handleInstrumentChange(instrument)}
-                      type="button"
-                      aria-pressed={formData.instrument === instrument}
-                    >
-                      {instrument}
-                    </button>
-                  ))}
-                </div>
-                {customInstrument.isOther && (
-                  <input
-                    type="text"
-                    className="other-instrument-input"
-                    placeholder="Please specify your instrument"
-                    value={customInstrument.value}
-                    onChange={(e) => handleCustomInstrumentChange(e.target.value)}
-                    aria-label="Custom instrument name"
-                    autoFocus
-                  />
-                )}
-              </div>
+              <InstrumentStep 
+                instrument={formData.instrument!} 
+                customInstrument={customInstrument} 
+                onInstrumentChange={(instrument) => dispatch({ type: 'SET_INSTRUMENT', payload: instrument })} 
+                onCustomInstrumentChange={(value) => dispatch({ type: 'SET_CUSTOM_INSTRUMENT', payload: value })}
+              />
             )}
-
-            {/* Step 2: Performance Frequency */}
             {currentStep === FORM_STEPS.PERFORMANCE_FREQUENCY && (
-              <div className="form-step">
-                <h2>How often do you perform live?</h2>
-                <div className="radio-group" role="radiogroup" aria-labelledby="performance-frequency-title">
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="never"
-                      checked={formData.performanceFrequency === 'never'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        performanceFrequency: e.target.value as MusicianProfile['performanceFrequency']
-                      }))}
-                    />
-                    <span>Never / Just Practice</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="yearly"
-                      checked={formData.performanceFrequency === 'yearly'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        performanceFrequency: e.target.value as MusicianProfile['performanceFrequency']
-                      }))}
-                    />
-                    <span>A few times a year</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="monthly"
-                      checked={formData.performanceFrequency === 'monthly'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        performanceFrequency: e.target.value as MusicianProfile['performanceFrequency']
-                      }))}
-                    />
-                    <span>Monthly</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="weekly"
-                      checked={formData.performanceFrequency === 'weekly'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        performanceFrequency: e.target.value as MusicianProfile['performanceFrequency']
-                      }))}
-                    />
-                    <span>Weekly</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value="multiple"
-                      checked={formData.performanceFrequency === 'multiple'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        performanceFrequency: e.target.value as MusicianProfile['performanceFrequency']
-                      }))}
-                    />
-                    <span>Multiple times a week</span>
-                  </label>
-                </div>
-              </div>
+              <PerformanceStep 
+                performanceFrequency={formData.performanceFrequency}
+                onPerformanceFrequencyChange={(value) => dispatch({ type: 'SET_PERFORMANCE_FREQUENCY', payload: value })}
+              />
             )}
-
-            {/* Step 3: Crowd Size */}
             {currentStep === FORM_STEPS.CROWD_SIZE && (
-              <div className="form-step">
-                <h2>What's your average crowd size?</h2>
-                <div className="radio-group" role="radiogroup" aria-labelledby="crowd-size-title">
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="crowd"
-                      value="1-10"
-                      checked={formData.crowdSize === '1-10'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        crowdSize: e.target.value as MusicianProfile['crowdSize']
-                      }))}
-                    />
-                    <span>1-10 people</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="crowd"
-                      value="10-50"
-                      checked={formData.crowdSize === '10-50'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        crowdSize: e.target.value as MusicianProfile['crowdSize']
-                      }))}
-                    />
-                    <span>10-50 people</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="crowd"
-                      value="50-100"
-                      checked={formData.crowdSize === '50-100'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        crowdSize: e.target.value as MusicianProfile['crowdSize']
-                      }))}
-                    />
-                    <span>50-100 people</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="crowd"
-                      value="100-500"
-                      checked={formData.crowdSize === '100-500'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        crowdSize: e.target.value as MusicianProfile['crowdSize']
-                      }))}
-                    />
-                    <span>100-500 people</span>
-                  </label>
-                  <label className="radio-option">
-                    <input
-                      type="radio"
-                      name="crowd"
-                      value="500+"
-                      checked={formData.crowdSize === '500+'}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        crowdSize: e.target.value as MusicianProfile['crowdSize']
-                      }))}
-                    />
-                    <span>500+ people</span>
-                  </label>
-                </div>
-              </div>
+              <CrowdStep 
+                crowdSize={formData.crowdSize}
+                onCrowdSizeChange={(value) => dispatch({ type: 'SET_CROWD_SIZE', payload: value })}
+              />
             )}
-
-            {/* Step 4: Years of Experience */}
             {currentStep === FORM_STEPS.EXPERIENCE && (
-              <div className="form-step">
-                <h2>How many years have you been playing?</h2>
-                <div className="experience-input">
-                  <input
-                    type="number"
-                    min={EXPERIENCE_LIMITS.MIN}
-                    max={EXPERIENCE_LIMITS.MAX}
-                    value={formData.yearsOfExperience || ''}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value);
-                      if (!isNaN(value) && value >= EXPERIENCE_LIMITS.MIN && value <= EXPERIENCE_LIMITS.MAX) {
-                        setFormData(prev => ({ ...prev, yearsOfExperience: value }));
-                      }
-                    }}
-                    className="years-input"
-                    aria-label="Years of experience"
-                  />
-                  <span className="years-label">years</span>
-                </div>
-                <input
-                  type="range"
-                  min={EXPERIENCE_LIMITS.MIN}
-                  max={EXPERIENCE_LIMITS.MAX}
-                  value={formData.yearsOfExperience || 0}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setFormData(prev => ({ ...prev, yearsOfExperience: value }));
-                  }}
-                  className="years-slider"
-                  aria-label="Years of experience slider"
-                />
-              </div>
+              <ExperienceStep 
+                yearsOfExperience={formData.yearsOfExperience!}
+                onYearsOfExperienceChange={(value) => dispatch({ type: 'SET_YEARS_OF_EXPERIENCE', payload: value })}
+              />
             )}
-
-            {/* Step 5: Marketing Efforts */}
             {currentStep === FORM_STEPS.MARKETING_EFFORTS && (
-              <div className="form-step">
-                <h2>What marketing efforts are you currently using?</h2>
-                <p className="step-subtitle">Select all that apply</p>
-                <div className="checkbox-group" role="group" aria-labelledby="marketing-efforts-title">
-                  {MARKETING_OPTIONS.map(option => (
-                    <label key={option.id} className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        checked={formData.marketingEfforts?.includes(option.id) || false}
-                        onChange={() => handleMarketingChange(option.id)}
-                        aria-describedby={`marketing-${option.id}-desc`}
-                      />
-                      <span id={`marketing-${option.id}-desc`}>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <MarketingStep 
+                marketingEfforts={formData.marketingEfforts!}
+                onMarketingChange={(optionId) => dispatch({ type: 'TOGGLE_MARKETING_EFFORT', payload: optionId })}
+              />
             )}
           </div>
 
@@ -383,7 +173,7 @@ const MusicianForm: React.FC = () => {
             {currentStep > 1 && (
               <Button
                 variant="outline"
-                onClick={handleBack}
+                onClick={() => dispatch({ type: 'PREV_STEP' })}
                 type="button"
               >
                 Back
@@ -392,7 +182,7 @@ const MusicianForm: React.FC = () => {
             {currentStep < FORM_STEPS.TOTAL ? (
               <Button
                 variant="primary"
-                onClick={handleNext}
+                onClick={() => dispatch({ type: 'NEXT_STEP' })}
                 disabled={!isStepValid()}
                 type="button"
               >
