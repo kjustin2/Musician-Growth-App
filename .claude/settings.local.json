@@ -19,7 +19,8 @@
       "Bash(rm:*)",
       "Bash(npm cache clean:*)",
       "Bash(rg:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(gh repo view:*)"
     ],
     "deny": []
   }
