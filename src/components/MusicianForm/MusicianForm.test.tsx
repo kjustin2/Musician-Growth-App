@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@/test-utils';
+import { describe, it, expect } from 'vitest';
+import { render, screen, act } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import MusicianForm from './MusicianForm';
 
@@ -15,28 +15,40 @@ describe('MusicianForm', () => {
 
     // Step 1: Instrument
     await user.click(screen.getByText('Guitar'));
-    await user.click(screen.getByRole('button', { name: 'Next' }));
+    
+    // Wait for state to update and check if next button is enabled
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    });
 
     // Step 2: Performance Frequency
     expect(screen.getByText('How often do you perform live?')).toBeInTheDocument();
-    await user.click(screen.getByLabelText('Weekly'));
-    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await act(async () => {
+      await user.click(screen.getByLabelText('Weekly'));
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    });
 
     // Step 3: Crowd Size
     expect(screen.getByText("What's your average crowd size?")).toBeInTheDocument();
-    await user.click(screen.getByLabelText('50-100 people'));
-    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await act(async () => {
+      await user.click(screen.getByLabelText('50-100 people'));
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    });
 
     // Step 4: Experience
     expect(screen.getByText('How many years have you been playing?')).toBeInTheDocument();
     const experienceInput = screen.getByLabelText('Years of experience');
-    await user.clear(experienceInput);
-    await user.type(experienceInput, '5');
-    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await act(async () => {
+      await user.clear(experienceInput);
+      await user.type(experienceInput, '5');
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    });
 
     // Step 5: Marketing Efforts
     expect(screen.getByText('What marketing efforts are you currently using?')).toBeInTheDocument();
-    await user.click(screen.getByLabelText('Social Media (Facebook, Instagram, TikTok)'));
+    await act(async () => {
+      await user.click(screen.getByLabelText('Social Media (Facebook, Instagram, TikTok)'));
+    });
     
     // Final button should be "Get My Advice"
     expect(screen.getByRole('button', { name: 'Get My Advice' })).toBeInTheDocument();
@@ -48,10 +60,14 @@ describe('MusicianForm', () => {
 
     // Go to step 2
     await user.click(screen.getByText('Guitar'));
-    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    });
 
     // Go back to step 1
-    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Back' }));
+    });
     expect(screen.getByText("What's your primary instrument?")).toBeInTheDocument();
   });
 });

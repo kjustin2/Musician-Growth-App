@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { MusicianProfile } from '@/core/types';
 
 interface PerformanceStepProps {
@@ -6,7 +6,7 @@ interface PerformanceStepProps {
   onPerformanceFrequencyChange: (value: MusicianProfile['performanceFrequency']) => void;
 }
 
-const PerformanceStep: React.FC<PerformanceStepProps> = ({ performanceFrequency, onPerformanceFrequencyChange }) => {
+const PerformanceStep: React.FC<PerformanceStepProps> = memo(({ performanceFrequency, onPerformanceFrequencyChange }) => {
   return (
     <div className="form-step">
       <h2>How often do you perform live?</h2>
@@ -64,6 +64,6 @@ const PerformanceStep: React.FC<PerformanceStepProps> = ({ performanceFrequency,
       </div>
     </div>
   );
-};
+});
 
 export default PerformanceStep;

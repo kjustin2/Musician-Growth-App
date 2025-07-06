@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { EXPERIENCE_LIMITS } from '@/core/constants';
 
 interface ExperienceStepProps {
@@ -6,7 +6,7 @@ interface ExperienceStepProps {
   onYearsOfExperienceChange: (value: number) => void;
 }
 
-const ExperienceStep: React.FC<ExperienceStepProps> = ({ yearsOfExperience, onYearsOfExperienceChange }) => {
+const ExperienceStep: React.FC<ExperienceStepProps> = memo(({ yearsOfExperience, onYearsOfExperienceChange }) => {
   return (
     <div className="form-step">
       <h2>How many years have you been playing?</h2>
@@ -38,6 +38,6 @@ const ExperienceStep: React.FC<ExperienceStepProps> = ({ yearsOfExperience, onYe
       />
     </div>
   );
-};
+});
 
 export default ExperienceStep;

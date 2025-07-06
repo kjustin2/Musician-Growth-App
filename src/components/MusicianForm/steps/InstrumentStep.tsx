@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { INSTRUMENTS } from '@/core/constants';
 
 interface InstrumentStepProps {
@@ -11,7 +11,7 @@ interface InstrumentStepProps {
   onCustomInstrumentChange: (value: string) => void;
 }
 
-const InstrumentStep: React.FC<InstrumentStepProps> = ({ 
+const InstrumentStep: React.FC<InstrumentStepProps> = memo(({ 
   instrument, 
   customInstrument, 
   onInstrumentChange, 
@@ -46,6 +46,6 @@ const InstrumentStep: React.FC<InstrumentStepProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default InstrumentStep;

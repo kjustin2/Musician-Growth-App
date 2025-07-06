@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { MARKETING_OPTIONS } from '@/core/constants';
 
 interface MarketingStepProps {
@@ -6,7 +6,7 @@ interface MarketingStepProps {
   onMarketingChange: (optionId: string) => void;
 }
 
-const MarketingStep: React.FC<MarketingStepProps> = ({ marketingEfforts, onMarketingChange }) => {
+const MarketingStep: React.FC<MarketingStepProps> = memo(({ marketingEfforts, onMarketingChange }) => {
   return (
     <div className="form-step">
       <h2>What marketing efforts are you currently using?</h2>
@@ -26,6 +26,6 @@ const MarketingStep: React.FC<MarketingStepProps> = ({ marketingEfforts, onMarke
       </div>
     </div>
   );
-};
+});
 
 export default MarketingStep;

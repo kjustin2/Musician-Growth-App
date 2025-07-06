@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
 import { AppState, AppAction, PageState, MusicianProfile, Recommendation } from '@/core/types';
+import { generateRecommendations } from '@/core/recommendationEngine';
+import { RECOMMENDATION_CONFIG } from '@/core/constants';
 
 const initialState: AppState = {
   currentPage: 'landing',
@@ -76,4 +78,28 @@ export function useSetLoading() {
 export function useReset() {
   const { dispatch } = useApp();
   return () => dispatch({ type: 'RESET' });
+}
+
+export function useSubmitProfile() {
+  const { dispatch } = useApp();
+  return useCallback(async (profile: MusicianProfile) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_PROFILE', payload: profile });
+      
+      // Generate recommendations
+      const recommendations = generateRecommendations(profile);
+      dispatch({ type: 'SET_RECOMMENDATIONS', payload: recommendations });
+      
+      // Simulate loading delay
+      await new Promise(resolve => setTimeout(resolve, RECOMMENDATION_CONFIG.LOADING_DELAY_MS));
+      
+      // Navigate to results
+      dispatch({ type: 'SET_PAGE', payload: 'results' });
+    } catch (error) {
+      console.error('Profile submission error:', error);
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [dispatch]);
 }

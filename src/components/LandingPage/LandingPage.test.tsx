@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@/test-utils';
+import { render, screen, act } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import App from '@/App';
 
@@ -14,7 +14,9 @@ describe('LandingPage', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: 'Get Started' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Get Started' }));
+    });
 
     expect(screen.getByText("What's your primary instrument?")).toBeInTheDocument();
   });

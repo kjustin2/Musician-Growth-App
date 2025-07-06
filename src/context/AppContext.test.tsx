@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, act } from '@/test-utils';
+import { render, screen, act, waitFor } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import App from '@/App';
 
@@ -47,12 +47,20 @@ describe('App E2E Flow', () => {
 
     // Step 5: Marketing Efforts
     await user.click(screen.getByLabelText('Social Media (Facebook, Instagram, TikTok)'));
+    
+    // Submit form and wait for async operations
     await act(async () => {
       await user.click(screen.getByRole('button', { name: 'Get My Advice' }));
     });
 
-    // 3. Loading State and Results Page
-    expect(await screen.findByText('Your Personalized Music Career Plan')).toBeInTheDocument();
+    // 3. Wait for loading state and results page
+    await waitFor(
+      () => {
+        expect(screen.getByText('Your Personalized Music Career Plan')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+    
     expect(await screen.findByText('Mock Recommendation')).toBeInTheDocument();
 
     // 4. Reset and go back to Landing Page

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import './Button.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -8,7 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps> = memo(({
   variant = 'primary',
   size = 'medium',
   fullWidth = false,
@@ -29,6 +29,6 @@ const Button: React.FC<ButtonProps> = ({
       {children}
     </button>
   );
-};
+});
 
 export default Button;

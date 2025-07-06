@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { MusicianProfile } from '@/core/types';
 
 interface CrowdStepProps {
@@ -6,7 +6,7 @@ interface CrowdStepProps {
   onCrowdSizeChange: (value: MusicianProfile['crowdSize']) => void;
 }
 
-const CrowdStep: React.FC<CrowdStepProps> = ({ crowdSize, onCrowdSizeChange }) => {
+const CrowdStep: React.FC<CrowdStepProps> = memo(({ crowdSize, onCrowdSizeChange }) => {
   return (
     <div className="form-step">
       <h2>What's your average crowd size?</h2>
@@ -64,6 +64,6 @@ const CrowdStep: React.FC<CrowdStepProps> = ({ crowdSize, onCrowdSizeChange }) =
       </div>
     </div>
   );
-};
+});
 
 export default CrowdStep;

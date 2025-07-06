@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useApp, useReset, useSetRecommendations } from '@/context/AppContext';
 import RecommendationCard from './RecommendationCard';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -10,6 +10,7 @@ const RecommendationsList: React.FC = () => {
   const { state } = useApp();
   const reset = useReset();
   const setRecommendations = useSetRecommendations();
+  const recommendations = useMemo(() => state.recommendations, [state.recommendations]);
 
   React.useEffect(() => {
     if (state.musicianProfile && state.recommendations.length === 0) {
@@ -18,9 +19,9 @@ const RecommendationsList: React.FC = () => {
     }
   }, [state.musicianProfile, state.recommendations.length, setRecommendations]);
 
-  const handleStartOver = () => {
+  const handleStartOver = useCallback(() => {
     reset();
-  };
+  }, [reset]);
 
   if (state.isLoading) {
     return (
@@ -31,8 +32,6 @@ const RecommendationsList: React.FC = () => {
       </div>
     );
   }
-
-  const recommendations = state.recommendations;
 
   return (
     <div className="recommendations-page">

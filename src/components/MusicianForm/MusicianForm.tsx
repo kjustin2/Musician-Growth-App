@@ -1,6 +1,6 @@
 import React, { useReducer, useCallback } from 'react';
 import { MusicianProfile } from '@/core/types';
-import { useSetPage, useSetProfile, useSetLoading } from '@/context/AppContext';
+import { useSubmitProfile } from '@/context/AppContext';
 import Button from '@/components/common/Button';
 import ProgressBar from '@/components/common/ProgressBar';
 import InstrumentStep from './steps/InstrumentStep';
@@ -8,7 +8,7 @@ import PerformanceStep from './steps/PerformanceStep';
 import CrowdStep from './steps/CrowdStep';
 import ExperienceStep from './steps/ExperienceStep';
 import MarketingStep from './steps/MarketingStep';
-import { FORM_STEPS, STEP_LABELS, RECOMMENDATION_CONFIG, EXPERIENCE_LIMITS } from '@/core/constants';
+import { FORM_STEPS, STEP_LABELS, EXPERIENCE_LIMITS } from '@/core/constants';
 import './MusicianForm.css';
 
 // Form state and actions
@@ -66,21 +66,20 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, formData: { ...state.formData, crowdSize: action.payload } };
     case 'SET_YEARS_OF_EXPERIENCE':
       return { ...state, formData: { ...state.formData, yearsOfExperience: action.payload } };
-    case 'TOGGLE_MARKETING_EFFORT':
+    case 'TOGGLE_MARKETING_EFFORT': {
       const currentEfforts = state.formData.marketingEfforts || [];
       const newEfforts = currentEfforts.includes(action.payload)
         ? currentEfforts.filter(id => id !== action.payload)
         : [...currentEfforts, action.payload];
       return { ...state, formData: { ...state.formData, marketingEfforts: newEfforts } };
+    }
     default:
       return state;
   }
 }
 
 const MusicianForm: React.FC = () => {
-  const setPage = useSetPage();
-  const setProfile = useSetProfile();
-  const setLoading = useSetLoading();
+  const submitProfile = useSubmitProfile();
 
   const [state, dispatch] = useReducer(formReducer, initialState);
   const { currentStep, formData, customInstrument } = state;
@@ -94,14 +93,8 @@ const MusicianForm: React.FC = () => {
       marketingEfforts: formData.marketingEfforts!
     };
 
-    setProfile(finalProfile);
-    setLoading(true);
-    
-    setTimeout(() => {
-      setLoading(false);
-      setPage('results');
-    }, RECOMMENDATION_CONFIG.LOADING_DELAY_MS);
-  }, [customInstrument, formData, setProfile, setLoading, setPage]);
+    await submitProfile(finalProfile);
+  }, [customInstrument, formData, submitProfile]);
 
   const isStepValid = useCallback(() => {
     switch (currentStep) {

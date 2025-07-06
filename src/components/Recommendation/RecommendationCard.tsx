@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Recommendation } from '@/core/types';
 import './RecommendationCard.css';
 
@@ -20,7 +20,7 @@ const categoryLabels: Record<Recommendation['category'], string> = {
   skill: 'Skill Development'
 };
 
-const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation }) => {
+const RecommendationCard: React.FC<RecommendationCardProps> = memo(({ recommendation }) => {
   const icon = categoryIcons[recommendation.category];
   const categoryLabel = categoryLabels[recommendation.category];
 
@@ -44,6 +44,6 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation 
       </div>
     </div>
   );
-};
+});
 
 export default RecommendationCard;
