@@ -10,5 +10,5 @@ export default defineConfig({
       '@': resolve(process.cwd(), './src'),
     },
   },
-  base: '/musician-growth-app/',
+  base: '/Musician-Growth-App/',
 })
