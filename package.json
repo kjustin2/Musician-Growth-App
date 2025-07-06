@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://your-username.github.io/musician-growth-app",
+  "homepage": "https://kjustin2.github.io/Musician-Growth-App",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
