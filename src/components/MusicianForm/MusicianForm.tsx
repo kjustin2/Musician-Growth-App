@@ -1,6 +1,7 @@
 import React, { useReducer, useCallback } from 'react';
 import { MusicianProfile } from '@/core/types';
 import { useSubmitProfile } from '@/context/AppContext';
+import { createBasicProfile } from '@/utils/profileUtils';
 import Button from '@/components/common/Button';
 import ProgressBar from '@/components/common/ProgressBar';
 import InstrumentStep from './steps/InstrumentStep';
@@ -85,13 +86,13 @@ const MusicianForm: React.FC = () => {
   const { currentStep, formData, customInstrument } = state;
 
   const handleSubmit = useCallback(async () => {
-    const finalProfile: MusicianProfile = {
+    const finalProfile = createBasicProfile({
       instrument: customInstrument.isOther ? customInstrument.value : formData.instrument!,
       performanceFrequency: formData.performanceFrequency!,
       crowdSize: formData.crowdSize!,
       yearsOfExperience: formData.yearsOfExperience!,
       marketingEfforts: formData.marketingEfforts!
-    };
+    });
 
     await submitProfile(finalProfile);
   }, [customInstrument, formData, submitProfile]);

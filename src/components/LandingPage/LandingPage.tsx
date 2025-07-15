@@ -7,16 +7,16 @@ const LandingPage: React.FC = () => {
   const setPage = useSetPage();
 
   const handleGetStarted = () => {
-    setPage('form');
+    setPage('profile-selection');
   };
 
   return (
     <div className="landing-page">
       <div className="container">
         <section className="hero-section">
-          <h1 className="hero-title">Find Your Next Step as a Musician</h1>
+          <h1 className="hero-title">Track Your Musical Journey</h1>
           <p className="hero-subtitle">
-            Get personalized advice to grow your music career based on your current journey
+            Track performances, practice sessions, and goals while getting personalized recommendations to grow your music career
           </p>
           <Button 
             variant="primary" 
@@ -33,18 +33,18 @@ const LandingPage: React.FC = () => {
           <div className="steps-container">
             <div className="step">
               <div className="step-number">1</div>
-              <h3>Tell Us About You</h3>
-              <p>Share details about your musical journey and current activities</p>
+              <h3>Create Your Profile</h3>
+              <p>Set up your musician profile with your instrument, experience, and goals</p>
             </div>
             <div className="step">
               <div className="step-number">2</div>
-              <h3>Get Instant Analysis</h3>
-              <p>Our smart engine analyzes your profile and identifies growth opportunities</p>
+              <h3>Track Your Activities</h3>
+              <p>Log performances, practice sessions, and progress toward your goals</p>
             </div>
             <div className="step">
               <div className="step-number">3</div>
-              <h3>Grow Your Career</h3>
-              <p>Receive actionable recommendations tailored to your unique situation</p>
+              <h3>Get Smart Recommendations</h3>
+              <p>Receive personalized advice based on your tracked data and progress trends</p>
             </div>
           </div>
         </section>

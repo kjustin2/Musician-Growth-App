@@ -1,5 +1,6 @@
 import { MusicianProfile, Recommendation } from './types';
 import { RECOMMENDATION_CONFIG } from './constants';
+import { analyticsService } from '../services/analyticsService';
 
 interface Rule {
   id: string;
@@ -115,11 +116,33 @@ const rules: Rule[] = [
 ];
 
 export function generateRecommendations(profile: MusicianProfile): Recommendation[] {
+  // Generate basic recommendations
+  const basicRecommendations = generateBasicRecommendations(profile);
+  
+  // Generate enhanced recommendations based on historical data
+  const enhancedRecommendations = generateEnhancedRecommendations(profile);
+  
+  // Combine and prioritize recommendations
+  const allRecommendations = [...basicRecommendations, ...enhancedRecommendations];
+  
+  // Remove duplicates and sort by priority
+  const uniqueRecommendations = removeDuplicateRecommendations(allRecommendations);
+  
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  uniqueRecommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  
+  return uniqueRecommendations.slice(0, RECOMMENDATION_CONFIG.MAX_RECOMMENDATIONS);
+}
+
+function generateBasicRecommendations(profile: MusicianProfile): Recommendation[] {
   const matchedRecommendations = rules
     .filter(rule => rule.condition(profile))
     .map(rule => ({
-      ...rule,
+      id: rule.id,
+      title: rule.title,
       description: rule.description.replace('{instrument}', profile.instrument.toLowerCase()),
+      category: rule.category,
+      priority: rule.priority,
     }));
 
   // Ensure we have at least minimum recommendations
@@ -130,15 +153,201 @@ export function generateRecommendations(profile: MusicianProfile): Recommendatio
       description: 'Create content about your musical journey. Share practice videos, cover songs, and document your progress. This builds your personal brand and connects you with other musicians.',
       category: 'marketing',
       priority: 'medium',
-      condition: () => true,
     });
   }
 
-  // Sort by priority (high, medium, low) and return top recommendations
-  const priorityOrder = { high: 0, medium: 1, low: 2 };
-  return matchedRecommendations
-    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
-    .slice(0, RECOMMENDATION_CONFIG.MAX_RECOMMENDATIONS);
+  return matchedRecommendations;
+}
+
+function generateEnhancedRecommendations(profile: MusicianProfile): Recommendation[] {
+  const recommendations: Recommendation[] = [];
+  
+  // Performance-based recommendations
+  if (profile.shows && profile.shows.length > 0) {
+    recommendations.push(...generatePerformanceRecommendations(profile));
+  }
+  
+  // Practice-based recommendations
+  if (profile.practiceLog && profile.practiceLog.length > 0) {
+    recommendations.push(...generatePracticeRecommendations(profile));
+  }
+  
+  // Goal-based recommendations
+  if (profile.goals && profile.goals.length > 0) {
+    recommendations.push(...generateGoalRecommendations(profile));
+  }
+  
+  return recommendations;
+}
+
+function generatePerformanceRecommendations(profile: MusicianProfile): Recommendation[] {
+  const recommendations: Recommendation[] = [];
+  const performanceTrends = analyticsService.analyzePerformanceTrends(profile.shows);
+  
+  // Audience growth recommendations
+  if (performanceTrends.showFrequency === 'decreasing') {
+    recommendations.push({
+      id: 'PERF_TREND_01',
+      title: 'Reverse Your Performance Decline',
+      description: 'Your performance frequency has been decreasing. Consider booking more regular gigs to maintain momentum. Set a goal to perform at least once per month.',
+      category: 'performance',
+      priority: 'high'
+    });
+  }
+  
+  if (performanceTrends.showFrequency === 'increasing') {
+    recommendations.push({
+      id: 'PERF_TREND_02',
+      title: 'Capitalize on Your Momentum',
+      description: 'Great job increasing your performance frequency! Consider reaching out to larger venues or festivals to expand your audience reach.',
+      category: 'performance',
+      priority: 'medium'
+    });
+  }
+  
+  // Venue progression recommendations
+  if (performanceTrends.venueProgression === 'declining') {
+    recommendations.push({
+      id: 'VENUE_01',
+      title: 'Aim for Better Venues',
+      description: 'Focus on booking higher-quality venues. Research concert halls, music festivals, and established music venues in your area.',
+      category: 'performance',
+      priority: 'medium'
+    });
+  }
+  
+  // Earnings optimization
+  if (performanceTrends.totalEarnings > 0 && performanceTrends.averageAudienceSize > 50) {
+    const avgPayment = performanceTrends.totalEarnings / profile.shows.length;
+    if (avgPayment < 200) {
+      recommendations.push({
+        id: 'EARN_01',
+        title: 'Increase Your Performance Rates',
+        description: 'With your growing audience, consider raising your performance fees. Research standard rates for your area and experience level.',
+        category: 'performance',
+        priority: 'medium'
+      });
+    }
+  }
+  
+  return recommendations;
+}
+
+function generatePracticeRecommendations(profile: MusicianProfile): Recommendation[] {
+  const recommendations: Recommendation[] = [];
+  const practiceAnalysis = analyticsService.analyzePracticeHabits(profile.practiceLog);
+  
+  // Practice frequency recommendations
+  if (practiceAnalysis.recommendedAdjustment === 'increase') {
+    recommendations.push({
+      id: 'PRACTICE_01',
+      title: 'Increase Your Practice Time',
+      description: `Your current practice schedule averages ${Math.round(practiceAnalysis.weeklyAverage)} minutes per week. Consider increasing to 5-7 hours weekly for optimal skill development.`,
+      category: 'skill',
+      priority: 'high'
+    });
+  }
+  
+  if (practiceAnalysis.recommendedAdjustment === 'decrease') {
+    recommendations.push({
+      id: 'PRACTICE_02',
+      title: 'Balance Practice and Performance',
+      description: 'While your dedication to practice is admirable, consider balancing practice time with performance opportunities to apply your skills.',
+      category: 'skill',
+      priority: 'medium'
+    });
+  }
+  
+  // Consistency recommendations
+  if (practiceAnalysis.consistency === 'needs_improvement') {
+    recommendations.push({
+      id: 'PRACTICE_03',
+      title: 'Improve Practice Consistency',
+      description: 'Regular practice is more effective than sporadic long sessions. Try to practice for shorter periods more frequently.',
+      category: 'skill',
+      priority: 'high'
+    });
+  }
+  
+  // Professional lesson recommendations
+  if (practiceAnalysis.suggestProfessionalLessons) {
+    recommendations.push({
+      id: 'PRACTICE_04',
+      title: 'Consider Professional Lessons',
+      description: 'Based on your practice patterns, professional lessons could help you focus your efforts and accelerate your progress.',
+      category: 'skill',
+      priority: 'medium'
+    });
+  }
+  
+  return recommendations;
+}
+
+function generateGoalRecommendations(profile: MusicianProfile): Recommendation[] {
+  const recommendations: Recommendation[] = [];
+  const activeGoals = profile.goals.filter(goal => goal.status === 'active');
+  const completedGoals = profile.goals.filter(goal => goal.status === 'completed');
+  
+  // Goal completion motivation
+  if (activeGoals.length > 0) {
+    const overdueGoals = activeGoals.filter(goal => 
+      goal.deadline && new Date(goal.deadline) < new Date()
+    );
+    
+    if (overdueGoals.length > 0) {
+      recommendations.push({
+        id: 'GOAL_01',
+        title: 'Review Overdue Goals',
+        description: `You have ${overdueGoals.length} overdue goal(s). Consider adjusting deadlines or breaking them into smaller, manageable tasks.`,
+        category: 'skill',
+        priority: 'high'
+      });
+    }
+  }
+  
+  // Goal achievement celebration and next steps
+  if (completedGoals.length > 0) {
+    const recentCompletions = completedGoals.filter(goal => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return new Date(goal.createdAt) > thirtyDaysAgo;
+    });
+    
+    if (recentCompletions.length > 0) {
+      recommendations.push({
+        id: 'GOAL_02',
+        title: 'Set New Challenges',
+        description: `Congratulations on completing ${recentCompletions.length} goal(s) recently! Consider setting new, more ambitious goals to continue your growth.`,
+        category: 'skill',
+        priority: 'medium'
+      });
+    }
+  }
+  
+  // Goal diversity recommendations
+  const goalTypes = new Set(profile.goals.map(goal => goal.type));
+  if (goalTypes.size < 3 && profile.shows.length > 5) {
+    recommendations.push({
+      id: 'GOAL_03',
+      title: 'Diversify Your Goals',
+      description: 'Consider setting goals in different areas: performance, financial, recording, and skill development to ensure well-rounded growth.',
+      category: 'skill',
+      priority: 'low'
+    });
+  }
+  
+  return recommendations;
+}
+
+function removeDuplicateRecommendations(recommendations: Recommendation[]): Recommendation[] {
+  const seen = new Set<string>();
+  return recommendations.filter(rec => {
+    if (seen.has(rec.id)) {
+      return false;
+    }
+    seen.add(rec.id);
+    return true;
+  });
 }
 
 function getCrowdSizeNumber(crowdSize: string): number {

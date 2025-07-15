@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Lint on Save",
+  "description": "Automatically lint and format code on file save with ESLint, Prettier, and TypeScript support",
+  "version": "1.0.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.{js,ts,jsx,tsx,vue,css,scss,json,md}",
+      "!**/node_modules/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been saved and needs linting and formatting. Please perform the following code quality checks:\n\n1. **ESLint Analysis**: Run ESLint on the file to identify and fix code quality issues, syntax errors, and style violations\n2. **Prettier Formatting**: Apply Prettier formatting to ensure consistent code style\n3. **TypeScript Check**: If applicable, run TypeScript compiler checks for type errors\n4. **Auto-fix**: Apply automatic fixes where possible for linting issues\n5. **Summary Report**: Provide a summary of issues found and fixes applied\n\nUse the project's configured linting tools (ESLint, Prettier) and apply fixes automatically where safe. Report any issues that require manual intervention."
+  }
+}

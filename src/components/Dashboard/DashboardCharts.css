@@ -1,0 +1,149 @@
+/* Dashboard Charts Styles */
+.dashboard-charts {
+  margin-top: 2rem;
+}
+
+.charts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.charts-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.period-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.25rem;
+}
+
+.period-selector button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+
+.period-selector button:hover {
+  background: white;
+  color: #2c3e50;
+}
+
+.period-selector button.active {
+  background: #007bff;
+  color: white;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.chart-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.progress-rings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.progress-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e9ecef;
+}
+
+.progress-section h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.rings-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.progress-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-stats p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.progress-stats strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .charts-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .progress-rings {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .rings-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .chart-section,
+  .progress-section {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .period-selector {
+    width: 100%;
+  }
+  
+  .period-selector button {
+    flex: 1;
+    padding: 0.75rem;
+  }
+}

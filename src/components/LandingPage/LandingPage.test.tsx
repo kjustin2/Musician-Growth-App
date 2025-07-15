@@ -6,11 +6,11 @@ import App from '@/App';
 describe('LandingPage', () => {
   it('renders the main heading and CTA', () => {
     render(<App />);
-    expect(screen.getByText('Find Your Next Step as a Musician')).toBeInTheDocument();
+    expect(screen.getByText('Track Your Musical Journey')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Get Started' })).toBeInTheDocument();
   });
 
-  it('navigates to the form when the CTA is clicked', async () => {
+  it('navigates to profile selection when the CTA is clicked', async () => {
     const user = userEvent.setup();
     render(<App />);
 
@@ -18,6 +18,7 @@ describe('LandingPage', () => {
       await user.click(screen.getByRole('button', { name: 'Get Started' }));
     });
 
-    expect(screen.getByText("What's your primary instrument?")).toBeInTheDocument();
+    // The app now goes to profile selection and shows loading state
+    expect(screen.getByText('Loading your profiles...')).toBeInTheDocument();
   });
 });

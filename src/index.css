@@ -1,8 +1,8 @@
 :root {
   /* Color Palette */
-  --primary-color: #5B4E9F; /* Deep purple */
-  --primary-dark: #483D7A;
-  --primary-light: #7668B3;
+  --primary-color: #007bff; /* Bootstrap blue for consistency */
+  --primary-dark: #0056b3;
+  --primary-light: #66b3ff;
   --accent-color: #FF6B6B; /* Coral */
   --accent-dark: #FF5252;
   --accent-light: #FF8787;
@@ -19,6 +19,35 @@
   --gray-700: #495057;
   --gray-800: #343A40;
   --gray-900: #212529;
+  
+  /* Accessibility-focused variables */
+  --tab-active-bg: var(--primary-color);
+  --tab-active-text: var(--white);
+  --tab-active-border: var(--primary-dark);
+  --tab-inactive-text: var(--gray-600);
+  --tab-hover-bg: var(--gray-100);
+  --tab-hover-text: var(--gray-700);
+  --tab-focus-shadow: rgba(0, 123, 255, 0.25);
+  
+  /* Progress indicator constraints */
+  --progress-ring-size: 120px;
+  --progress-ring-mobile: 100px;
+  --progress-ring-small: 80px;
+  --progress-bar-height: 8px;
+  --progress-bar-large-height: 20px;
+  
+  /* Success and status colors */
+  --success-color: #28a745;
+  --success-dark: #1e7e34;
+  --warning-color: #ffc107;
+  --warning-dark: #e0a800;
+  --info-color: #17a2b8;
+  --info-dark: #117a8b;
+  --danger-color: #dc3545;
+  --danger-dark: #c82333;
+  
+  /* Contrast ratios for accessibility */
+  --min-contrast-ratio: 4.5; /* WCAG AA standard */
 
   /* Typography */
   --font-heading: 'Montserrat', sans-serif;

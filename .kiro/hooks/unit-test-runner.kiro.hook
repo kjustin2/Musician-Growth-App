@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Unit Test Runner",
+  "description": "Automatically runs unit tests on file save with pre-compilation validation and intelligent caching",
+  "version": "1.0.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.{js,ts,jsx,tsx,vue,test.js,test.ts,spec.js,spec.ts}",
+      "!**/node_modules/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code or test files have been modified. Please run the appropriate unit tests to ensure the changes don't break existing functionality. Focus on:\n\n1. **Pre-compilation Check**: Verify code compiles without errors before running tests\n2. **Test Execution**: Run relevant unit tests with Jest, Vitest, or the configured test runner\n3. **Coverage Analysis**: Check if test coverage is maintained or improved\n4. **Failure Analysis**: If tests fail, analyze the failures and provide suggestions for fixes\n5. **Performance**: Monitor test execution time and suggest optimizations if needed\n\nRun the tests using the project's configured test command (npm test, npm run test:unit, etc.) and provide a summary of results."
+  }
+}

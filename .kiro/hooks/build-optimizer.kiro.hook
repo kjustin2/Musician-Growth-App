@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Build Optimizer",
+  "description": "Analyzes and optimizes bundle size with webpack, Vite, and Rollup support including performance budgets",
+  "version": "1.0.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "package.json",
+      "webpack.config.js",
+      "vite.config.js",
+      "rollup.config.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Build configuration or dependencies have been modified. Please analyze and optimize the build process:\n\n1. **Build Analysis**: Run the build process and analyze bundle size, chunks, and dependencies\n2. **Performance Budget**: Check if bundle size exceeds performance thresholds (5MB total, 250KB per chunk)\n3. **Optimization Opportunities**: Identify areas for improvement such as:\n   - Tree-shaking opportunities\n   - Code splitting possibilities\n   - Duplicate dependencies\n   - Large assets that could be optimized\n4. **Bundle Report**: Generate a bundle analysis report if tools are available\n5. **Recommendations**: Provide specific optimization suggestions with implementation steps\n\nUse the project's build tools (webpack-bundle-analyzer, vite-bundle-analyzer, etc.) to generate insights and recommendations."
+  }
+}

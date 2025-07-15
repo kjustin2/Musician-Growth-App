@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Documentation Sync",
+  "description": "Listens to TypeScript source files and configuration changes to automatically update project documentation in README.md and docs folder",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "*.ts",
+      "*.tsx",
+      "package.json",
+      "tsconfig.json",
+      "vite.config.ts",
+      "vitest.config.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code files have been modified. Please review the changes and update the project documentation accordingly. Update the README.md file and any relevant documentation in the docs/ folder to reflect any new features, API changes, configuration updates, or architectural modifications. Ensure the documentation stays current with the codebase."
+  }
+}
