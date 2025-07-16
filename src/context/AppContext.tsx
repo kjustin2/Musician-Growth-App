@@ -10,6 +10,7 @@ const initialState: AppState = {
   recommendations: [],
   isLoading: false,
   error: null,
+  navigationContext: null,
 };
 
 const AppContext = createContext<{
@@ -31,6 +32,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, isLoading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload };
+    case 'SET_NAVIGATION_CONTEXT':
+      return { ...state, navigationContext: action.payload };
     case 'ADD_PERFORMANCE':
       if (!state.musicianProfile) return state;
       return {
@@ -187,6 +190,9 @@ export function useQuickRecommendations() {
       
       // Simulate loading delay
       await new Promise(resolve => setTimeout(resolve, RECOMMENDATION_CONFIG.LOADING_DELAY_MS));
+      
+      // Set navigation context for onboarding flow
+      dispatch({ type: 'SET_NAVIGATION_CONTEXT', payload: 'onboarding' });
       
       // Navigate to results page for quick recommendations
       dispatch({ type: 'SET_PAGE', payload: 'results' });

@@ -203,15 +203,29 @@
 }
 
 .history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 2rem;
+}
+
+.history-header h2 {
+  margin-bottom: 1.5rem; /* 24px spacing between title and tabs */
+  font-weight: 600;
+  color: #2c3e50;
 }
 
 .history-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.5rem; /* 8px gap between tab buttons */
+  flex-wrap: wrap; /* Allow wrapping on mobile */
+}
+
+.history-tabs .tab-button {
+  padding: 0.75rem 1.25rem; /* 12px 20px */
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Touch target size for mobile */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .activity-loading {
@@ -549,9 +563,19 @@
     grid-template-columns: 1fr;
   }
   
-  .history-header {
-    flex-direction: column;
-    gap: 1rem;
+  .history-header h2 {
+    margin-bottom: 1rem; /* Reduce spacing on mobile */
+  }
+  
+  .history-tabs {
+    justify-content: center;
+    gap: 0.25rem; /* Tighter spacing on mobile */
+  }
+  
+  .history-tabs .tab-button {
+    flex: 1;
+    min-width: 100px;
+    font-size: 0.875rem; /* Slightly smaller text on mobile */
   }
   
   .activity-tabs {

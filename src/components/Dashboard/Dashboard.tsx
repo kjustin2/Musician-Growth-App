@@ -147,6 +147,9 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
       // Update recommendations in context
       dispatch({ type: 'SET_RECOMMENDATIONS', payload: recommendations });
       
+      // Set navigation context for dashboard flow
+      dispatch({ type: 'SET_NAVIGATION_CONTEXT', payload: 'dashboard' });
+      
       // Navigate to recommendations page
       dispatch({ type: 'SET_PAGE', payload: 'results' });
     } catch (error) {

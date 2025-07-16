@@ -100,33 +100,57 @@ The build artifacts will be stored in the `dist/` directory.
 
 ```
 src/
-├── components/           # React components
-│   ├── ActivityTracking/ # Performance and practice tracking
-│   ├── BulkEntry/        # Bulk data entry forms
-│   ├── Dashboard/        # Main dashboard components
-│   ├── GoalManagement/   # Goal setting and tracking
-│   ├── common/           # Shared UI components
-│   ├── LandingPage/      # Landing page component
-│   ├── MusicianForm/     # Profile setup forms
-│   ├── ProfileSelection/ # Profile management
-│   └── Recommendation/   # Recommendation display
-├── context/              # React Context for state management
-│   └── AppContext.tsx    # Main application context
-├── core/                 # Business logic and types
-│   ├── types.ts          # TypeScript type definitions
-│   ├── constants.ts      # Application constants
-│   ├── achievementTypes.ts # Achievement system types
+├── components/           # React components (feature-based organization)
+│   ├── ActivityTracking/ # Performance and practice session tracking
+│   ├── BulkEntry/        # Bulk data entry forms and validation
+│   ├── Dashboard/        # Main dashboard with analytics and charts
+│   ├── GoalManagement/   # Goal setting, tracking, and progress
+│   ├── LandingPage/      # Landing page and onboarding flow
+│   ├── MusicianForm/     # Profile creation and editing forms
+│   ├── ProfileSelection/ # Profile management and switching
+│   ├── Recommendation/   # Recommendation display and algorithms
+│   └── common/           # Shared UI components (ErrorBoundary, etc.)
+├── context/              # React Context for global state
+│   └── AppContext.tsx    # Main application context with reducer pattern
+├── core/                 # Business logic, types, and constants
+│   ├── types.ts          # Comprehensive TypeScript type definitions
+│   ├── constants.ts      # Application constants and configuration
+│   ├── achievementTypes.ts # Achievement system types and definitions
 │   └── recommendationEngine.ts # Recommendation algorithms
-├── services/             # External services and utilities
+├── services/             # External services and data operations
 │   ├── storageService.ts # IndexedDB storage operations
-│   ├── analyticsService.ts # Data analysis and metrics
-│   └── achievementService.ts # Achievement management
-├── utils/                # Utility functions
+│   ├── analyticsService.ts # Data analysis and performance metrics
+│   └── achievementService.ts # Achievement management and progress tracking
+├── utils/                # Pure utility functions
 │   └── index.ts          # Common utility functions
+├── hooks/                # Custom React hooks (currently empty)
+├── styles/               # Global and shared CSS
+├── tests/                # Cross-cutting tests (accessibility, responsive)
 ├── App.tsx               # Main application component
 ├── main.tsx              # Application entry point
 └── index.css             # Global styles
 ```
+
+## 📊 Data Models and Architecture
+
+The Musician Growth App features a comprehensive data model designed for professional music career tracking:
+
+### Core Data Types
+- **MusicianProfile**: Complete musician profile with activity history
+- **PerformanceRecord**: Detailed show tracking with venue, audience, and earnings data
+- **PracticeSession**: Structured practice logging with focus areas and skills
+- **Goal**: Comprehensive goal management with progress tracking
+- **Achievement**: Gamified achievement system with multiple tiers
+
+### Advanced Features
+- **Analytics Engine**: Automated trend analysis and insights
+- **Achievement System**: 15+ achievements across 4 categories (Bronze to Platinum)
+- **Recommendation Engine**: AI-driven suggestions for career growth
+- **Contextual Navigation**: Smart navigation that adapts based on user journey (onboarding vs dashboard flows)
+- **User Preferences**: Comprehensive settings and customization
+- **Error Handling**: Robust error management with recovery options
+
+For detailed documentation of all data models and types, see [docs/data-models.md](docs/data-models.md).
 
 ## 🎮 Usage Guide
 

@@ -7,7 +7,7 @@ import { generateRecommendations } from '@/core/recommendationEngine';
 import './RecommendationsList.css';
 
 const RecommendationsList: React.FC = () => {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
   const reset = useReset();
   const setRecommendations = useSetRecommendations();
   const recommendations = useMemo(() => state.recommendations, [state.recommendations]);
@@ -23,6 +23,10 @@ const RecommendationsList: React.FC = () => {
     reset();
   }, [reset]);
 
+  const handleBackToDashboard = useCallback(() => {
+    dispatch({ type: 'SET_PAGE', payload: 'dashboard' });
+  }, [dispatch]);
+
   if (state.isLoading) {
     return (
       <div className="recommendations-page">
@@ -37,6 +41,21 @@ const RecommendationsList: React.FC = () => {
     <div className="recommendations-page">
       <div className="container">
         <div className="recommendations-header">
+          <div className="recommendations-nav">
+            {state.navigationContext === 'dashboard' ? (
+              <Button
+                variant="outline"
+                onClick={handleBackToDashboard}
+                className="back-button"
+              >
+                ← Back to Dashboard
+              </Button>
+            ) : (
+              <div className="onboarding-nav">
+                {/* Space for onboarding navigation if needed */}
+              </div>
+            )}
+          </div>
           <h1>Your Personalized Music Career Plan</h1>
           <p className="recommendations-subtitle">
             Based on your profile, here are our top recommendations to help you grow as a musician.

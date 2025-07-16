@@ -103,6 +103,7 @@ export interface AppState {
   recommendations: Recommendation[];
   isLoading: boolean;
   error: string | null;
+  navigationContext: 'onboarding' | 'dashboard' | null;
 }
 
 export type AppAction =
@@ -112,6 +113,7 @@ export type AppAction =
   | { type: 'SET_RECOMMENDATIONS'; payload: Recommendation[] }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_NAVIGATION_CONTEXT'; payload: 'onboarding' | 'dashboard' | null }
   | { type: 'ADD_PERFORMANCE'; payload: PerformanceRecord }
   | { type: 'ADD_PRACTICE_SESSION'; payload: PracticeSession }
   | { type: 'ADD_GOAL'; payload: Goal }
