@@ -38,7 +38,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onAction }) => {
       id: 'view-recommendations',
       title: 'Get Advice',
       description: 'View updated recommendations',
-      icon: '💡',
+      icon: '📊',
       color: 'warning'
     }
   ];

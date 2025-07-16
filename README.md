@@ -15,6 +15,7 @@ The Musician Growth App is a production-ready React application designed to help
 - **🏆 Achievement System**: Unlock achievements and receive notifications for milestones
 - **📈 Bulk Data Entry**: Efficiently backfill historical data with templates and validation
 - **🔔 Notification Center**: Real-time notifications for achievements and important updates
+- **💡 AI-Powered Recommendations**: Personalized career guidance based on your activity data and progress
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
 - **🚀 Onboarding Flow**: Guided tour for new users to learn the platform
 

@@ -215,7 +215,6 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
               onClick={handleViewRecommendations}
               type="button"
             >
-              <span className="action-icon">💡</span>
               View My Recommendations
             </button>
             <div className="recommendation-hint">

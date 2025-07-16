@@ -57,9 +57,10 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
+  align-items: start;
 }
 
 .dashboard-section {
@@ -138,14 +139,6 @@
 }
 
 /* Quick Actions Styles */
-.quick-actions {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem; /* 24px internal padding */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-}
-
 .quick-actions h3 {
   margin-bottom: 1.25rem; /* 20px spacing */
   color: #2c3e50;
@@ -164,13 +157,15 @@
   align-items: center;
   padding: 1rem 1.25rem; /* 16px 20px - enhanced padding */
   border-radius: 0.5rem;
-  background: white;
+  background: #f8f9fa;
   border: 1px solid #dee2e6;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
   min-height: 60px; /* Adequate touch target */
   gap: 1rem; /* 16px between icon and content */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .action-card:hover {

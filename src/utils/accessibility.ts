@@ -331,7 +331,7 @@ export const validateKeyboardNavigation = (element: HTMLElement): AccessibilityV
         if (focusBackground && focusBackground !== normalBackground) {
           hasFocusIndicator = true;
         }
-      } catch (focusStyleError) {
+      } catch {
         // :focus pseudo-class detection not available in this environment
         // Fall back to checking for potential focus styles in base element
       }
@@ -359,7 +359,7 @@ export const validateKeyboardNavigation = (element: HTMLElement): AccessibilityV
         warnings.push('Interactive element should have visible focus indicator (outline, box-shadow, border, or background change)');
       }
       
-    } catch (styleError) {
+    } catch {
       // If getComputedStyle fails, provide a general warning
       warnings.push('Unable to verify focus indicator - ensure element has visible focus styling');
     }
@@ -665,7 +665,7 @@ function rgbToHex(rgb: string): string | null {
     };
     
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
