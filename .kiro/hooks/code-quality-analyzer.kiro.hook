@@ -1,16 +1,23 @@
 {
   "enabled": true,
   "name": "Code Quality Analyzer",
-  "description": "Monitors source code files for changes and provides automated code quality analysis including code smells detection, design pattern suggestions, and best practices recommendations to improve readability, maintainability, and performance.",
+  "description": "Monitors source code files for changes and analyzes modified code for potential improvements including code smells, design patterns, and best practices. Generates suggestions for improving readability, maintainability, and performance while ensuring code compiles without failures.",
   "version": "1",
   "when": {
     "type": "fileEdited",
     "patterns": [
-      "*.tsx"
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.jsx"
     ]
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Analyze the modified code in the changed files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify any code smells like long methods, large classes, duplicate code, or complex conditionals\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check adherence to language-specific best practices and coding standards\n4. **Readability**: Suggest improvements for variable naming, code organization, and documentation\n5. **Maintainability**: Identify areas that could be refactored for easier maintenance\n6. **Performance**: Highlight potential performance optimizations without changing functionality\n\nProvide specific, actionable suggestions with code examples where helpful. Prioritize suggestions that have the highest impact on code quality while maintaining existing functionality.\n\nAlso, make sure the code compiles properly after the changes. Fix any issues such as import issues."
+    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Quality Issues**: Identify code smells, anti-patterns, and violations of best practices\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Readability**: Recommend changes to make the code more readable and self-documenting\n4. **Maintainability**: Identify areas that could be refactored for better maintainability\n5. **Performance**: Suggest optimizations that could improve performance without breaking functionality\n6. **Compilation Issues**: Check for and fix any compilation errors or TypeScript issues\n7. **Best Practices**: Ensure the code follows modern JavaScript/TypeScript and React best practices\n\nFor each suggestion, provide:\n- Clear explanation of the issue or improvement opportunity\n- Specific code examples showing the current code and proposed improvement\n- Reasoning for why the change would be beneficial\n- Any potential trade-offs or considerations\n\nEnsure all suggestions maintain existing functionality and that the code will compile successfully after implementing the changes."
   }
 }
