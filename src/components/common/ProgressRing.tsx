@@ -25,11 +25,27 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   const percentage = Math.round((value / maxValue) * 100);
 
   return (
-    <div className="progress-ring" style={{ width: size, height: size }}>
+    <div 
+      className="progress-ring" 
+      style={{ 
+        '--progress-ring-size': `${size}px`,
+        width: size, 
+        height: size,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
+      } as React.CSSProperties}
+    >
       <svg 
         className="progress-ring-svg"
         width={size}
         height={size}
+        style={{
+          display: 'block',
+          maxWidth: `${size}px`,
+          maxHeight: `${size}px`
+        }}
       >
         <circle
           className="progress-ring-background"

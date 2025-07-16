@@ -82,9 +82,9 @@ describe('ActivityTracking - Tab Navigation Accessibility', () => {
     await screen.findByText('Activity Tracking');
     
     // Check that tabs are rendered
-    const performanceTab = screen.getByText('Log Performance');
-    const practiceTab = screen.getByText('Log Practice');
-    const historyTab = screen.getByText('View History');
+    const performanceTab = screen.getByText('🎤 Add Performance');
+    const practiceTab = screen.getByText('🎵 Log Practice');
+    const historyTab = screen.getByText('📊 View History');
     
     expect(performanceTab).toBeInTheDocument();
     expect(practiceTab).toBeInTheDocument();
@@ -96,8 +96,8 @@ describe('ActivityTracking - Tab Navigation Accessibility', () => {
     
     await screen.findByText('Activity Tracking');
     
-    const performanceTab = screen.getByText('Log Performance');
-    const practiceTab = screen.getByText('Log Practice');
+    const performanceTab = screen.getByText('🎤 Add Performance');
+    const practiceTab = screen.getByText('🎵 Log Practice');
     
     // Test that tabs are focusable
     performanceTab.focus();
@@ -113,8 +113,8 @@ describe('ActivityTracking - Tab Navigation Accessibility', () => {
     
     await screen.findByText('Activity Tracking');
     
-    const performanceTab = screen.getByText('Log Performance');
-    const practiceTab = screen.getByText('Log Practice');
+    const performanceTab = screen.getByText('🎤 Add Performance');
+    const practiceTab = screen.getByText('🎵 Log Practice');
     
     // Check initial active state
     expect(performanceTab).toHaveClass('active');
@@ -152,8 +152,11 @@ describe('ActivityTracking - History Tab Navigation', () => {
     await screen.findByText('Activity Tracking');
     
     // Navigate to history tab
-    const historyTab = screen.getByText('View History');
+    const historyTab = screen.getByText('📊 View History');
     fireEvent.click(historyTab);
+    
+    // Wait for loading to complete
+    await screen.findByText('Activity History');
     
     // Check for history navigation tabs
     const performancesHistoryTab = screen.getByText('Performances');
@@ -171,8 +174,11 @@ describe('ActivityTracking - History Tab Navigation', () => {
     await screen.findByText('Activity Tracking');
     
     // Navigate to history tab
-    const historyTab = screen.getByText('View History');
+    const historyTab = screen.getByText('📊 View History');
     fireEvent.click(historyTab);
+    
+    // Wait for loading to complete
+    await screen.findByText('Activity History');
     
     const performancesHistoryTab = screen.getByText('Performances');
     const practiceHistoryTab = screen.getByText('Practice');

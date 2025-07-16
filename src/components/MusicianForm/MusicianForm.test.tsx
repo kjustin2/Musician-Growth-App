@@ -14,7 +14,9 @@ describe('MusicianForm', () => {
     render(<MusicianForm />);
 
     // Step 1: Instrument
-    await user.click(screen.getByText('Guitar'));
+    await act(async () => {
+      await user.click(screen.getByText('Guitar'));
+    });
     
     // Wait for state to update and check if next button is enabled
     await act(async () => {
@@ -59,7 +61,9 @@ describe('MusicianForm', () => {
     render(<MusicianForm />);
 
     // Go to step 2
-    await user.click(screen.getByText('Guitar'));
+    await act(async () => {
+      await user.click(screen.getByText('Guitar'));
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: 'Next' }));
     });

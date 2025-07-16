@@ -8,6 +8,10 @@ export function createDefaultProfile(partialProfile: Partial<MusicianProfile>): 
     practiceReminders: false,
     goalDeadlineAlerts: true,
     performanceMetrics: true,
+    notifications: true,
+    dataSharing: false,
+    themes: 'light',
+    language: 'en',
     defaultVenueType: 'bar'
   };
 

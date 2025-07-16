@@ -53,10 +53,14 @@ const mockProfile: MusicianProfile = {
   goals: [],
   achievements: [],
   preferences: {
+    practiceReminders: false,
+    goalDeadlineAlerts: true,
+    performanceMetrics: true,
     notifications: true,
     dataSharing: false,
     themes: 'light' as const,
-    language: 'en'
+    language: 'en',
+    defaultVenueType: 'bar'
   },
   createdAt: new Date(),
   lastUpdated: new Date()
@@ -215,7 +219,7 @@ describe('Responsive Design - Tablet (768px)', () => {
     await screen.findByText('Activity Tracking');
     
     // Tabs should be easily clickable on tablet
-    const performanceTab = screen.getByText('Log Performance');
+    const performanceTab = screen.getByText('🎤 Add Performance');
     expect(performanceTab).toBeInTheDocument();
     expect(performanceTab).toHaveClass('tab-button');
   });
@@ -334,7 +338,7 @@ describe('Responsive Design - Accessibility Maintenance', () => {
       
       const { rerender } = renderWithContext(<ActivityTracking />);
       
-      await screen.findByText('Activity Tracking');
+      await screen.findAllByText('Activity Tracking');
       
       // Check that tabs maintain accessibility
       const tabs = screen.getAllByRole('button').filter(button => 
@@ -362,13 +366,15 @@ describe('Responsive Design - Accessibility Maintenance', () => {
       
       const { rerender } = renderWithContext(<Dashboard profile={mockProfile} />);
       
-      await screen.findByText('Welcome back, Test User!');
+      await screen.findAllByText('Welcome back, Test User!');
       
       // Check that recommendation card maintains proper styling
-      const recommendationCard = screen.getByText('Your Personalized Recommendations').closest('.recommendation-card');
+      const recommendationCards = screen.getAllByText('Your Personalized Recommendations');
+      const recommendationCard = recommendationCards[0]?.closest('.recommendation-card');
       expect(recommendationCard).toBeInTheDocument();
       
-      const recommendationButton = screen.getByText('View My Recommendations');
+      const recommendationButtons = screen.getAllByText('View My Recommendations');
+      const recommendationButton = recommendationButtons[0];
       expect(recommendationButton).toHaveClass('btn-primary', 'btn-large');
       
       rerender(

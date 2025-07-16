@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MusicianProfile } from '../../core/types';
-import { useApp } from '../../context/AppContext';
+// import { useApp } from '../../context/AppContext'; // Reserved for future use
 import './OnboardingFlow.css';
 
 interface OnboardingFlowProps {
@@ -16,7 +16,7 @@ interface OnboardingStep {
 }
 
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ profile, onComplete }) => {
-  const { dispatch } = useApp();
+  // const { dispatch } = useApp(); // Reserved for future dispatch usage
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
@@ -238,6 +238,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ profile, onComplete }) 
 
   const currentStepData = steps[currentStep];
 
+  if (!currentStepData) {
+    return null;
+  }
+
   return (
     <div className="onboarding-overlay">
       <div className="onboarding-modal">
@@ -262,7 +266,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ profile, onComplete }) 
         </div>
 
         <div className="onboarding-header">
-          <h1>{currentStepData.title}</h1>
+          <h2>{currentStepData.title}</h2>
           <p className="onboarding-description">{currentStepData.description}</p>
         </div>
 

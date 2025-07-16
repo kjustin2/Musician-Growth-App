@@ -139,15 +139,20 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
   };
 
   const handleViewRecommendations = () => {
-    // Generate updated recommendations based on current profile data
-    const updatedProfile = { ...profile };
-    const recommendations = generateRecommendations(updatedProfile);
-    
-    // Update recommendations in context
-    dispatch({ type: 'SET_RECOMMENDATIONS', payload: recommendations });
-    
-    // Navigate to recommendations page
-    dispatch({ type: 'SET_PAGE', payload: 'results' });
+    try {
+      // Generate updated recommendations based on current profile data
+      const updatedProfile = { ...profile };
+      const recommendations = generateRecommendations(updatedProfile);
+      
+      // Update recommendations in context
+      dispatch({ type: 'SET_RECOMMENDATIONS', payload: recommendations });
+      
+      // Navigate to recommendations page
+      dispatch({ type: 'SET_PAGE', payload: 'results' });
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to generate recommendations. Please try again.' });
+    }
   };
 
   if (loading) {
@@ -205,6 +210,7 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
             <button 
               className="btn btn-primary btn-large"
               onClick={handleViewRecommendations}
+              type="button"
             >
               <span className="action-icon">💡</span>
               View My Recommendations

@@ -390,7 +390,7 @@ export class StorageService {
       const request = store.add({
         ...achievement,
         profileId,
-        unlockedAt: new Date(achievement.unlockedAt)
+        unlockedAt: achievement.unlockedAt ? new Date(achievement.unlockedAt) : undefined
       });
 
       request.onsuccess = () => resolve();
@@ -403,32 +403,7 @@ export class StorageService {
     });
   }
 
-  async getAchievements(profileId: string): Promise<Achievement[]> {
-    this.ensureDb();
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(['achievements'], 'readonly');
-      const store = transaction.objectStore('achievements');
-      const index = store.index('profileId');
-      
-      const request = index.getAll(profileId);
 
-      request.onsuccess = () => {
-        const achievements = request.result.map((achievement: any) => ({
-          ...achievement,
-          unlockedAt: new Date(achievement.unlockedAt)
-        }));
-        resolve(achievements);
-      };
-      
-      request.onerror = () => {
-        const error: StorageError = new Error('Failed to load achievements') as StorageError;
-        error.type = 'unknown';
-        error.recoverable = true;
-        reject(error);
-      };
-    });
-  }
 
   // Bulk operations
   async bulkAddActivities(
@@ -503,7 +478,7 @@ export class StorageService {
     });
   }
 
-  async getAchievements(profileId: string): Promise<AchievementType[]> {
+  async getAchievements(profileId: string): Promise<Achievement[]> {
     this.ensureDb();
     
     return new Promise((resolve, reject) => {

@@ -391,7 +391,7 @@ export const validateResponsiveAccessibility = (
     // Define breakpoints
     const isMobile = viewportWidth <= 768;
     const isTablet = viewportWidth > 768 && viewportWidth <= 1024;
-    const isDesktop = viewportWidth > 1024;
+    // const isDesktop = viewportWidth > 1024; // Reserved for future desktop-specific validations
     
     // Touch target size validation for mobile and tablet
     if (isMobile || isTablet) {
@@ -483,7 +483,7 @@ export const validateResponsiveAccessibility = (
     
     // Image responsiveness check
     if (element.tagName === 'IMG') {
-      const img = element as HTMLImageElement;
+      // const img = element as HTMLImageElement; // Reserved for future image-specific validations
       const maxWidth = computedStyle.maxWidth;
       
       if (!maxWidth || maxWidth === 'none') {
@@ -633,7 +633,7 @@ export const validateAccessibility = (
     }
     
   } catch (error) {
-    allErrors.push(`Comprehensive validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    allErrors.push(`Accessibility validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
   
   return {
@@ -654,9 +654,9 @@ function rgbToHex(rgb: string): string | null {
     const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
     if (!match) return null;
     
-    const r = parseInt(match[1]);
-    const g = parseInt(match[2]);
-    const b = parseInt(match[3]);
+    const r = parseInt(match[1]!);
+    const g = parseInt(match[2]!);
+    const b = parseInt(match[3]!);
     
     // Convert to hex
     const toHex = (n: number) => {

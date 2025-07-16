@@ -52,10 +52,14 @@ const mockProfile: MusicianProfile = {
   goals: [],
   achievements: [],
   preferences: {
+    practiceReminders: false,
+    goalDeadlineAlerts: true,
+    performanceMetrics: true,
     notifications: true,
     dataSharing: false,
     themes: 'light' as const,
-    language: 'en'
+    language: 'en',
+    defaultVenueType: 'bar'
   },
   createdAt: new Date(),
   lastUpdated: new Date()
@@ -102,14 +106,14 @@ const calculateContrastRatio = (color1: string, color2: string): number => {
 
 describe('Accessibility - WCAG AA Compliance', () => {
   it('should meet minimum contrast ratios for tab navigation', async () => {
-    renderWithContext(<ActivityTracking profile={mockProfile} />);
+    renderWithContext(<ActivityTracking />);
     
     await screen.findByText('Activity Tracking');
     
-    // Test contrast ratios for tab colors
-    const primaryColor = '#007bff';
+    // Test contrast ratios for tab colors (using actual CSS variable values)
+    const primaryColor = '#004085'; // --primary-dark (used for --tab-active-bg)
     const whiteColor = '#ffffff';
-    const grayColor = '#6c757d';
+    const grayColor = '#495057'; // --gray-700 (used for --tab-inactive-text)
     
     const activeTabContrast = calculateContrastRatio(primaryColor, whiteColor);
     const inactiveTabContrast = calculateContrastRatio(grayColor, whiteColor);
@@ -139,7 +143,7 @@ describe('Accessibility - WCAG AA Compliance', () => {
   });
 
   it('should provide proper labels for interactive elements', async () => {
-    renderWithContext(<ActivityTracking profile={mockProfile} />);
+    renderWithContext(<ActivityTracking />);
     
     await screen.findByText('Activity Tracking');
     
@@ -155,11 +159,11 @@ describe('Accessibility - WCAG AA Compliance', () => {
   });
 
   it('should support keyboard navigation', async () => {
-    renderWithContext(<ActivityTracking profile={mockProfile} />);
+    renderWithContext(<ActivityTracking />);
     
     await screen.findByText('Activity Tracking');
     
-    const firstTab = screen.getByText('Log Performance');
+    const firstTab = screen.getByText('🎤 Add Performance');
     
     // Tab should be focusable
     expect(firstTab).toHaveAttribute('type', 'button');
@@ -233,7 +237,7 @@ describe('Accessibility - Color and Typography', () => {
 
 describe('Accessibility - Form Controls', () => {
   it('should have proper labels for form inputs in activity tracking', async () => {
-    renderWithContext(<ActivityTracking profile={mockProfile} />);
+    renderWithContext(<ActivityTracking />);
     
     await screen.findByText('Activity Tracking');
     
@@ -245,7 +249,7 @@ describe('Accessibility - Form Controls', () => {
   });
 
   it('should provide error states that are accessible', async () => {
-    renderWithContext(<ActivityTracking profile={mockProfile} />);
+    renderWithContext(<ActivityTracking />);
     
     await screen.findByText('Activity Tracking');
     

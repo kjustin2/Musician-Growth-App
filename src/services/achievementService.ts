@@ -5,7 +5,7 @@ import { generateId } from '../utils';
 
 export class AchievementService {
   private achievements: Achievement[] = [...ACHIEVEMENTS];
-  private notifications: Notification[] = [];
+
 
   async checkAchievements(
     profileId: string,
@@ -113,8 +113,8 @@ export class AchievementService {
     let currentConsecutive = 1;
 
     for (let i = 1; i < practiceDates.length; i++) {
-      const currentDate = new Date(practiceDates[i]);
-      const previousDate = new Date(practiceDates[i - 1]);
+      const currentDate = new Date(practiceDates[i]!);
+      const previousDate = new Date(practiceDates[i - 1]!);
       const dayDiff = (currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
 
       if (dayDiff === 1) {

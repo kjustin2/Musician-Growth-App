@@ -39,10 +39,14 @@ const mockProfile: MusicianProfile = {
   goals: [],
   achievements: [],
   preferences: {
+    practiceReminders: false,
+    goalDeadlineAlerts: true,
+    performanceMetrics: true,
     notifications: true,
     dataSharing: false,
     themes: 'light' as const,
-    language: 'en'
+    language: 'en',
+    defaultVenueType: 'bar'
   },
   createdAt: new Date(),
   lastUpdated: new Date()

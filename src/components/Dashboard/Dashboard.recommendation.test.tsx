@@ -17,6 +17,7 @@ vi.mock('../../services/analyticsService', () => ({
   analyticsService: {
     calculateTotalPracticeTime: vi.fn().mockReturnValue(0),
     calculateAverageShowPayment: vi.fn().mockReturnValue(0),
+    groupActivitiesByWeek: vi.fn().mockReturnValue({}),
   }
 }));
 
@@ -46,10 +47,14 @@ const mockProfile: MusicianProfile = {
   goals: [],
   achievements: [],
   preferences: {
+    practiceReminders: false,
+    goalDeadlineAlerts: true,
+    performanceMetrics: true,
     notifications: true,
     dataSharing: false,
     themes: 'light' as const,
-    language: 'en'
+    language: 'en',
+    defaultVenueType: 'bar'
   },
   createdAt: new Date(),
   lastUpdated: new Date()

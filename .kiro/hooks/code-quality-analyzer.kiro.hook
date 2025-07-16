@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer",
+  "description": "Monitors source code files for changes and provides automated code quality analysis including code smells detection, design pattern suggestions, and best practices recommendations to improve readability, maintainability, and performance.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified code in the changed files for potential improvements. Focus on:\n\n1. **Code Smells**: Identify any code smells like long methods, large classes, duplicate code, or complex conditionals\n2. **Design Patterns**: Suggest appropriate design patterns that could improve the code structure\n3. **Best Practices**: Check adherence to language-specific best practices and coding standards\n4. **Readability**: Suggest improvements for variable naming, code organization, and documentation\n5. **Maintainability**: Identify areas that could be refactored for easier maintenance\n6. **Performance**: Highlight potential performance optimizations without changing functionality\n\nProvide specific, actionable suggestions with code examples where helpful. Prioritize suggestions that have the highest impact on code quality while maintaining existing functionality.\n\nAlso, make sure the code compiles properly after the changes. Fix any issues such as import issues."
+  }
+}

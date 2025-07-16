@@ -5,6 +5,7 @@ import {
   validateElementAccessibility,
   validateKeyboardNavigation,
   validateResponsiveAccessibility,
+  validateAccessibility,
   testColorCombinations,
   ACCESSIBILITY_COLORS
 } from './accessibility';
@@ -650,8 +651,14 @@ describe('Accessibility Utils - Edge Cases and Comprehensive Validation', () => 
     });
 
     const result = validateAccessibility(element);
-    expect(result.isValid).toBe(false);
-    expect(result.errors.some(e => e.includes('validation failed'))).toBe(true);
+    // The function should still be valid since contrast validation errors go to warnings by default
+    expect(result.isValid).toBe(true);
+    expect(result.warnings.some(e => e.includes('Contrast validation failed'))).toBe(true);
+
+    // Test with strict mode to make warnings become errors
+    const strictResult = validateAccessibility(element, { strictMode: true });
+    expect(strictResult.isValid).toBe(false);
+    expect(strictResult.errors.some(e => e.includes('Contrast validation failed'))).toBe(true);
 
     // Restore original function
     window.getComputedStyle = originalGetComputedStyle;

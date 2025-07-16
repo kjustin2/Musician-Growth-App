@@ -60,18 +60,24 @@ const ActivityTracking: React.FC = () => {
         <button 
           className={`tab-button ${activeTab === 'performance' ? 'active' : ''}`}
           onClick={() => setActiveTab('performance')}
+          type="button"
+          role="button"
         >
           🎤 Add Performance
         </button>
         <button 
           className={`tab-button ${activeTab === 'practice' ? 'active' : ''}`}
           onClick={() => setActiveTab('practice')}
+          type="button"
+          role="button"
         >
           🎵 Log Practice
         </button>
         <button 
           className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
+          type="button"
+          role="button"
         >
           📊 View History
         </button>

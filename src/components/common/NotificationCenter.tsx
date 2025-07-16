@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Notification } from '../../core/achievementTypes';
 import { achievementService } from '../../services/achievementService';
-import { useApp } from '../../context/AppContext';
+// import { useApp } from '../../context/AppContext'; // Reserved for future use
 import './NotificationCenter.css';
 
 interface NotificationCenterProps {
@@ -9,7 +9,7 @@ interface NotificationCenterProps {
 }
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({ profileId }) => {
-  const { state } = useApp();
+  // const { state } = useApp(); // Reserved for future state usage
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);

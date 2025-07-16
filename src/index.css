@@ -1,7 +1,7 @@
 :root {
   /* Color Palette */
   --primary-color: #007bff; /* Bootstrap blue for consistency */
-  --primary-dark: #0056b3;
+  --primary-dark: #004085; /* Even darker blue for WCAG AA compliance */
   --primary-light: #66b3ff;
   --accent-color: #FF6B6B; /* Coral */
   --accent-dark: #FF5252;
@@ -21,12 +21,12 @@
   --gray-900: #212529;
   
   /* Accessibility-focused variables */
-  --tab-active-bg: var(--primary-color);
+  --tab-active-bg: var(--primary-dark); /* Using darker blue for better contrast */
   --tab-active-text: var(--white);
   --tab-active-border: var(--primary-dark);
-  --tab-inactive-text: var(--gray-600);
+  --tab-inactive-text: var(--gray-700); /* Using darker gray for better contrast */
   --tab-hover-bg: var(--gray-100);
-  --tab-hover-text: var(--gray-700);
+  --tab-hover-text: var(--gray-800); /* Using darker gray for better contrast */
   --tab-focus-shadow: rgba(0, 123, 255, 0.25);
   
   /* Progress indicator constraints */

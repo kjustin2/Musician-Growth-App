@@ -71,7 +71,7 @@ const SimpleChart: React.FC<SimpleChartProps> = ({
                       {index > 0 && (
                         <line
                           x1={`${((index - 1) / (data.length - 1)) * 100}%`}
-                          y1={`${100 - (data[index - 1].value / maxValue) * 100}%`}
+                          y1={`${100 - (data[index - 1]?.value || 0) / maxValue * 100}%`}
                           x2={`${x}%`}
                           y2={`${y}%`}
                           stroke="#007bff"

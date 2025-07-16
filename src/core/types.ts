@@ -16,7 +16,7 @@ export interface MusicianProfile {
   shows: PerformanceRecord[];
   practiceLog: PracticeSession[];
   goals: Goal[];
-  achievements: Achievement[];
+  achievements: import('./achievementTypes').Achievement[];
   preferences: UserPreferences;
 }
 
@@ -53,18 +53,17 @@ export interface Goal {
   createdAt: Date;
 }
 
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  unlockedAt: Date;
-  category: 'performance' | 'practice' | 'goal' | 'milestone';
-}
+// Achievement interface is defined in achievementTypes.ts
+export type { Achievement, AchievementProgress, Notification } from './achievementTypes';
 
 export interface UserPreferences {
   practiceReminders: boolean;
   goalDeadlineAlerts: boolean;
   performanceMetrics: boolean;
+  notifications: boolean;
+  dataSharing: boolean;
+  themes: 'light' | 'dark';
+  language: string;
   defaultVenueType: PerformanceRecord['venueType'];
 }
 
@@ -117,5 +116,5 @@ export type AppAction =
   | { type: 'ADD_PRACTICE_SESSION'; payload: PracticeSession }
   | { type: 'ADD_GOAL'; payload: Goal }
   | { type: 'UPDATE_GOAL'; payload: { id: string; updates: Partial<Goal> } }
-  | { type: 'ADD_ACHIEVEMENT'; payload: Achievement }
+  | { type: 'ADD_ACHIEVEMENT'; payload: import('./achievementTypes').Achievement }
   | { type: 'RESET' };
