@@ -3,9 +3,10 @@ import { useApp } from '../../context/AppContext';
 import PerformanceEntry from './PerformanceEntry';
 import PracticeEntry from './PracticeEntry';
 import ActivityHistory from './ActivityHistory';
+import RecordingForm from '../RecordingManagement/RecordingForm';
 import './ActivityTracking.css';
 
-type ActivityType = 'performance' | 'practice' | 'history';
+type ActivityType = 'performance' | 'practice' | 'recording' | 'history';
 
 const ActivityTracking: React.FC = () => {
   const { state, dispatch } = useApp();
@@ -36,6 +37,8 @@ const ActivityTracking: React.FC = () => {
         return <PerformanceEntry profile={state.musicianProfile} />;
       case 'practice':
         return <PracticeEntry profile={state.musicianProfile} />;
+      case 'recording':
+        return <RecordingForm profile={state.musicianProfile} />;
       case 'history':
         return <ActivityHistory profile={state.musicianProfile} />;
       default:
@@ -53,7 +56,7 @@ const ActivityTracking: React.FC = () => {
           ← Back to Dashboard
         </button>
         <h1>Activity Tracking</h1>
-        <p>Log your performances and practice sessions</p>
+        <p>Log your performances, practice sessions, and recording sessions</p>
       </div>
 
       <div className="activity-tabs">
@@ -72,6 +75,14 @@ const ActivityTracking: React.FC = () => {
           role="button"
         >
           🎵 Log Practice
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'recording' ? 'active' : ''}`}
+          onClick={() => setActiveTab('recording')}
+          type="button"
+          role="button"
+        >
+          🎙️ Record Song
         </button>
         <button 
           className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}

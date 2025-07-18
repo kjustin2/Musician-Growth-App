@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { Goal } from '../../core/types';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Goal, Band } from '../../core/types';
+import { storageService } from '../../services/storageService';
+import { useApp } from '../../context/AppContext';
+import GoalMetricSelector from './GoalMetricSelector';
+import BandSelector from './BandSelector';
 
 interface GoalFormProps {
   goal?: Goal;
@@ -8,6 +12,7 @@ interface GoalFormProps {
 }
 
 const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
+  const { state } = useApp();
   const [formData, setFormData] = useState({
     title: goal?.title || '',
     description: goal?.description || '',
@@ -15,10 +20,45 @@ const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
     targetValue: goal?.targetValue?.toString() || '',
     currentValue: goal?.currentValue?.toString() || '0',
     deadline: goal?.deadline ? goal.deadline.toISOString().split('T')[0] : '',
-    status: goal?.status || 'active' as Goal['status']
+    status: goal?.status || 'active' as Goal['status'],
+    linkedMetric: goal?.linkedMetric || '',
+    autoUpdate: goal?.autoUpdate ?? true,
+    bandSpecific: goal?.bandSpecific || false,
+    selectedBands: goal?.selectedBands || []
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [bands, setBands] = useState<Band[]>([]);
+  const [bandsLoading, setBandsLoading] = useState(false);
+  const [bandsError, setBandsError] = useState<string | null>(null);
+  
+  // Memoize expensive metric calculations
+  const currentMetrics = useMemo(() => ({
+    totalShows: state.musicianProfile?.shows?.length || 0,
+    totalPracticeTime: state.musicianProfile?.practiceLog?.reduce((sum, session) => sum + session.duration, 0) || 0,
+    totalEarnings: state.musicianProfile?.shows?.reduce((sum, show) => sum + show.payment, 0) || 0,
+    totalRecordings: state.musicianProfile?.recordings?.length || 0
+  }), [state.musicianProfile]);
+
+  useEffect(() => {
+    if (state.musicianProfile?.id) {
+      loadBands(state.musicianProfile.id);
+    }
+  }, [state.musicianProfile?.id]);
+
+  const loadBands = useCallback(async (profileId: string) => {
+    setBandsLoading(true);
+    setBandsError(null);
+    try {
+      const bandsData = await storageService.getBands(profileId);
+      setBands(bandsData);
+    } catch (error) {
+      console.error('Error loading bands:', error);
+      setBandsError('Failed to load bands. Please try again.');
+    } finally {
+      setBandsLoading(false);
+    }
+  }, []);
 
   const goalTypes = [
     { value: 'performance', label: 'Performance', icon: '🎤' },
@@ -65,6 +105,27 @@ const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
       return;
     }
 
+    // Set default linked metric based on goal type if not already set
+    let linkedMetric = formData.linkedMetric;
+    if (!linkedMetric && formData.type !== 'custom') {
+      switch (formData.type) {
+        case 'performance':
+          linkedMetric = 'show_count';
+          break;
+        case 'skill':
+          linkedMetric = 'practice_time';
+          break;
+        case 'financial':
+          linkedMetric = 'total_earnings';
+          break;
+        case 'recording':
+          linkedMetric = 'recording_count';
+          break;
+        default:
+          linkedMetric = 'manual_tracking';
+      }
+    }
+
     const goalData: Omit<Goal, 'id' | 'createdAt'> = {
       title: formData.title.trim(),
       description: formData.description.trim(),
@@ -72,7 +133,13 @@ const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
       targetValue: formData.targetValue ? parseFloat(formData.targetValue) : undefined,
       currentValue: parseFloat(formData.currentValue),
       deadline: formData.deadline ? new Date(formData.deadline) : undefined,
-      status: formData.status
+      status: formData.status,
+      linkedMetric: linkedMetric || 'manual_tracking',
+      autoUpdate: formData.type === 'custom' ? false : formData.autoUpdate,
+      bandSpecific: formData.bandSpecific,
+      selectedBands: formData.selectedBands,
+      progressHistory: goal?.progressHistory || [],
+      lastAutoUpdate: goal?.lastAutoUpdate
     };
 
     onSubmit(goalData);
@@ -162,6 +229,20 @@ const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
           {errors.description && <span className="error-text">{errors.description}</span>}
         </div>
 
+        {/* Goal Metric Selector */}
+        <GoalMetricSelector
+          goalType={formData.type}
+          onMetricSelect={(metric) => {
+            setFormData(prev => ({
+              ...prev,
+              linkedMetric: metric.id,
+              autoUpdate: metric.autoUpdate
+            }));
+          }}
+          currentMetrics={currentMetrics}
+          selectedMetric={formData.linkedMetric}
+        />
+
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="targetValue">Target Value</label>
@@ -223,6 +304,67 @@ const GoalForm: React.FC<GoalFormProps> = ({ goal, onSubmit, onCancel }) => {
             </select>
           </div>
         </div>
+
+        {/* Band-Specific Goal Options */}
+        {(formData.type === 'performance' || formData.type === 'financial') && bands.length > 0 && (
+          <div className="form-group">
+            <div className="form-check">
+              <input
+                type="checkbox"
+                id="bandSpecific"
+                checked={formData.bandSpecific}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  bandSpecific: e.target.checked,
+                  selectedBands: e.target.checked ? prev.selectedBands : []
+                }))}
+                className="form-check-input"
+              />
+              <label htmlFor="bandSpecific" className="form-check-label">
+                Make this a band-specific goal
+              </label>
+              <small className="form-text text-muted d-block">
+                Track progress for specific bands only, rather than all your musical activities
+              </small>
+            </div>
+          </div>
+        )}
+
+        {/* Band Selection */}
+        {formData.bandSpecific && (
+          <>
+            {bandsLoading && (
+              <div className="text-center py-3">
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading bands...</span>
+                </div>
+                Loading bands...
+              </div>
+            )}
+            {bandsError && (
+              <div className="alert alert-warning" role="alert">
+                <i className="fas fa-exclamation-triangle me-2"></i>
+                {bandsError}
+              </div>
+            )}
+            {!bandsLoading && !bandsError && bands.length > 0 && (
+              <BandSelector
+                bands={bands}
+                selectedBands={formData.selectedBands}
+                onBandSelect={(bandIds) => setFormData(prev => ({ ...prev, selectedBands: bandIds }))}
+                allowMultiple={true}
+                required={true}
+                label="Select Bands for this Goal"
+              />
+            )}
+            {!bandsLoading && !bandsError && bands.length === 0 && (
+              <div className="alert alert-info" role="alert">
+                <i className="fas fa-info-circle me-2"></i>
+                No bands found. Create bands first to enable band-specific goals.
+              </div>
+            )}
+          </>
+        )}
 
         <div className="form-actions">
           <button

@@ -3,3 +3,52 @@
   display: flex;
   flex-direction: column;
 }
+
+/* Initialization screens */
+.initialization-loading,
+.initialization-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.initialization-loading .loading-spinner {
+  margin-bottom: 2rem;
+}
+
+.initialization-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: var(--bs-primary);
+}
+
+.initialization-loading h3 {
+  margin-bottom: 1rem;
+  color: var(--bs-dark);
+}
+
+.initialization-loading p {
+  color: var(--bs-secondary);
+  margin-bottom: 0;
+}
+
+.initialization-error .error-icon {
+  font-size: 4rem;
+  color: var(--bs-danger);
+  margin-bottom: 2rem;
+}
+
+.initialization-error h3 {
+  margin-bottom: 1rem;
+  color: var(--bs-danger);
+}
+
+.initialization-error p {
+  color: var(--bs-secondary);
+  margin-bottom: 2rem;
+  max-width: 500px;
+}

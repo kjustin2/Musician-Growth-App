@@ -2,9 +2,12 @@ import {
   PerformanceRecord, 
   PracticeSession, 
   PerformanceTrends, 
-  PracticeAnalysis 
+  PracticeAnalysis,
+  RecordingSession,
+  FinancialSummary
 } from '../core/types';
 import { calculateAverage, calculateTotal, sortByDate } from '../utils';
+import { financialTrackingService } from './financialTrackingService';
 
 export class AnalyticsService {
   groupActivitiesByWeek<T extends { date: Date }>(activities: T[]): Record<string, T[]> {
@@ -250,6 +253,210 @@ export class AnalyticsService {
     return Object.entries(skillCount)
       .map(([skill, count]) => ({ skill, count }))
       .sort((a, b) => b.count - a.count);
+  }
+
+  /**
+   * Enhanced performance trends that include recording revenue
+   */
+  async analyzeEnhancedPerformanceTrends(profileId: string, shows: PerformanceRecord[]): Promise<PerformanceTrends> {
+    const baseTrends = this.analyzePerformanceTrends(shows);
+    
+    try {
+      // Get comprehensive financial summary including recording revenue
+      const financialSummary = await financialTrackingService.calculateFinancialSummary(profileId);
+      
+      // Update total earnings to include all revenue sources
+      return {
+        ...baseTrends,
+        totalEarnings: financialSummary.totalRevenue
+      };
+    } catch (error) {
+      // Fall back to basic trends if financial service fails
+      return baseTrends;
+    }
+  }
+
+  /**
+   * Calculate comprehensive financial metrics including recording data
+   */
+  async calculateComprehensiveFinancialMetrics(profileId: string): Promise<FinancialSummary> {
+    return await financialTrackingService.calculateFinancialSummary(profileId);
+  }
+
+  /**
+   * Calculate total revenue including performances and recordings
+   */
+  calculateTotalRevenue(shows: PerformanceRecord[], recordings: RecordingSession[]): number {
+    const performanceRevenue = calculateTotal(shows.map(show => show.payment));
+    const recordingRevenue = calculateTotal(recordings.map(rec => rec.totalRevenue));
+    return performanceRevenue + recordingRevenue;
+  }
+
+  /**
+   * Calculate total expenses including recording costs
+   */
+  calculateTotalExpenses(recordings: RecordingSession[]): number {
+    return calculateTotal(recordings.map(rec => rec.cost));
+  }
+
+  /**
+   * Calculate net income (revenue - expenses)
+   */
+  calculateNetIncome(shows: PerformanceRecord[], recordings: RecordingSession[]): number {
+    const totalRevenue = this.calculateTotalRevenue(shows, recordings);
+    const totalExpenses = this.calculateTotalExpenses(recordings);
+    return totalRevenue - totalExpenses;
+  }
+
+  /**
+   * Analyze recording performance and ROI
+   */
+  analyzeRecordingPerformance(recordings: RecordingSession[]): {
+    totalInvestment: number;
+    totalReturn: number;
+    roi: number;
+    averageRevenuePerSong: number;
+    mostProfitableRecording: RecordingSession | null;
+  } {
+    if (recordings.length === 0) {
+      return {
+        totalInvestment: 0,
+        totalReturn: 0,
+        roi: 0,
+        averageRevenuePerSong: 0,
+        mostProfitableRecording: null
+      };
+    }
+
+    const totalInvestment = calculateTotal(recordings.map(rec => rec.cost));
+    const totalReturn = calculateTotal(recordings.map(rec => rec.totalRevenue));
+    const roi = totalInvestment > 0 ? ((totalReturn - totalInvestment) / totalInvestment) * 100 : 0;
+    
+    const totalSongs = recordings.reduce((sum, rec) => sum + rec.songs.length, 0);
+    const averageRevenuePerSong = totalSongs > 0 ? totalReturn / totalSongs : 0;
+    
+    const mostProfitableRecording = recordings.reduce((best, current) => {
+      const currentProfit = current.totalRevenue - current.cost;
+      const bestProfit = best ? best.totalRevenue - best.cost : -Infinity;
+      return currentProfit > bestProfit ? current : best;
+    }, null as RecordingSession | null);
+
+    return {
+      totalInvestment,
+      totalReturn,
+      roi,
+      averageRevenuePerSong,
+      mostProfitableRecording
+    };
+  }
+
+  /**
+   * Calculate revenue breakdown by source
+   */
+  calculateRevenueBreakdown(shows: PerformanceRecord[], recordings: RecordingSession[]): {
+    performances: { amount: number; percentage: number };
+    recordings: { amount: number; percentage: number };
+    total: number;
+  } {
+    const performanceRevenue = calculateTotal(shows.map(show => show.payment));
+    const recordingRevenue = calculateTotal(recordings.map(rec => rec.totalRevenue));
+    const total = performanceRevenue + recordingRevenue;
+
+    return {
+      performances: {
+        amount: performanceRevenue,
+        percentage: total > 0 ? (performanceRevenue / total) * 100 : 0
+      },
+      recordings: {
+        amount: recordingRevenue,
+        percentage: total > 0 ? (recordingRevenue / total) * 100 : 0
+      },
+      total
+    };
+  }
+
+  /**
+   * Get financial health indicators
+   */
+  async getFinancialHealthIndicators(profileId: string): Promise<{
+    healthScore: number;
+    profitMargin: number;
+    revenueGrowth: string;
+    expenseRatio: number;
+  }> {
+    try {
+      const [healthScore, financialSummary] = await Promise.all([
+        financialTrackingService.getFinancialHealthScore(profileId),
+        financialTrackingService.calculateFinancialSummary(profileId)
+      ]);
+
+      const profitMargin = financialSummary.totalRevenue > 0 
+        ? (financialSummary.netIncome / financialSummary.totalRevenue) * 100 
+        : 0;
+
+      const expenseRatio = financialSummary.totalRevenue > 0 
+        ? (financialSummary.totalExpenses / financialSummary.totalRevenue) * 100 
+        : 0;
+
+      // Calculate revenue growth from monthly trends
+      const recentTrends = financialSummary.monthlyTrends.slice(0, 3);
+      const olderTrends = financialSummary.monthlyTrends.slice(3, 6);
+      
+      const recentAverage = recentTrends.length > 0 
+        ? calculateAverage(recentTrends.map(t => t.revenue)) 
+        : 0;
+      const olderAverage = olderTrends.length > 0 
+        ? calculateAverage(olderTrends.map(t => t.revenue)) 
+        : 0;
+
+      let revenueGrowth = 'stable';
+      if (olderAverage > 0) {
+        const growthRate = ((recentAverage - olderAverage) / olderAverage) * 100;
+        if (growthRate > 10) {
+          revenueGrowth = 'increasing';
+        } else if (growthRate < -10) {
+          revenueGrowth = 'decreasing';
+        }
+      }
+
+      return {
+        healthScore,
+        profitMargin,
+        revenueGrowth,
+        expenseRatio
+      };
+    } catch (error) {
+      return {
+        healthScore: 0,
+        profitMargin: 0,
+        revenueGrowth: 'stable',
+        expenseRatio: 0
+      };
+    }
+  }
+
+  /**
+   * Enhanced average show payment that considers recording revenue impact
+   */
+  calculateEnhancedAverageEarnings(shows: PerformanceRecord[], recordings: RecordingSession[]): {
+    averagePerShow: number;
+    averagePerRecording: number;
+    overallAverage: number;
+  } {
+    const averagePerShow = this.calculateAverageShowPayment(shows);
+    const averagePerRecording = recordings.length > 0 
+      ? calculateAverage(recordings.map(rec => rec.totalRevenue)) 
+      : 0;
+    
+    const totalActivities = shows.length + recordings.length;
+    const totalRevenue = this.calculateTotalRevenue(shows, recordings);
+    const overallAverage = totalActivities > 0 ? totalRevenue / totalActivities : 0;
+
+    return {
+      averagePerShow,
+      averagePerRecording,
+      overallAverage
+    };
   }
 }
 

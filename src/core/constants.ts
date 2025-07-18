@@ -1,11 +1,12 @@
 // Form Configuration
 export const FORM_STEPS = {
-  TOTAL: 5,
-  INSTRUMENT: 1,
-  PERFORMANCE_FREQUENCY: 2,
-  CROWD_SIZE: 3,
-  EXPERIENCE: 4,
-  MARKETING_EFFORTS: 5,
+  TOTAL: 6,
+  NAME: 1,
+  INSTRUMENT: 2,
+  PERFORMANCE_FREQUENCY: 3,
+  CROWD_SIZE: 4,
+  EXPERIENCE: 5,
+  MARKETING_EFFORTS: 6,
 } as const;
 
 // Recommendation Engine Configuration
@@ -39,6 +40,7 @@ export const MARKETING_OPTIONS = [
 
 // Step Labels for Progress Bar
 export const STEP_LABELS = [
+  'Name',
   'Instrument',
   'Performance Frequency',
   'Crowd Size',

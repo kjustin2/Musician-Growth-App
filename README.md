@@ -18,6 +18,7 @@ The Musician Growth App is a production-ready React application designed to help
 - **💡 AI-Powered Recommendations**: Personalized career guidance based on your activity data and progress
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
 - **🚀 Onboarding Flow**: Guided tour for new users to learn the platform
+- **♿ Accessibility Compliance**: WCAG 2.1 AA compliant with comprehensive accessibility testing and validation
 
 ### Architecture
 
@@ -123,7 +124,8 @@ src/
 │   ├── analyticsService.ts # Data analysis and performance metrics
 │   └── achievementService.ts # Achievement management and progress tracking
 ├── utils/                # Pure utility functions
-│   └── index.ts          # Common utility functions
+│   ├── index.ts          # Common utility functions
+│   └── accessibility.ts  # Comprehensive accessibility testing and validation utilities
 ├── hooks/                # Custom React hooks (currently empty)
 ├── styles/               # Global and shared CSS
 ├── tests/                # Cross-cutting tests (accessibility, responsive)
@@ -185,6 +187,49 @@ For detailed documentation of all data models and types, see [docs/data-models.m
 - Apply templates for common values
 - Validate and import historical data efficiently
 
+## ♿ Accessibility
+
+The Musician Growth App is built with accessibility as a core principle, ensuring all users can effectively use the application regardless of their abilities.
+
+### WCAG 2.1 AA Compliance
+
+- **Color Contrast**: All text meets minimum 4.5:1 contrast ratio requirements
+- **Keyboard Navigation**: Full keyboard accessibility with visible focus indicators
+- **Screen Reader Support**: Proper ARIA labels, roles, and semantic HTML
+- **Touch Targets**: Minimum 44px touch targets for mobile accessibility
+- **Responsive Design**: Accessible across all device sizes and orientations
+
+### Accessibility Testing Tools
+
+The application includes comprehensive accessibility validation utilities:
+
+```typescript
+import { 
+  validateAccessibility, 
+  calculateContrastRatio, 
+  validateTabAccessibility,
+  ACCESSIBILITY_COLORS 
+} from '@/utils/accessibility';
+
+// Validate element accessibility
+const result = validateAccessibility(element, {
+  checkContrast: true,
+  checkKeyboard: true,
+  checkResponsive: true,
+  viewportWidth: window.innerWidth
+});
+```
+
+### Built-in Accessibility Features
+
+- **WCAG-Compliant Color Palette**: Pre-validated color combinations
+- **Automated Contrast Validation**: Real-time color contrast checking
+- **Keyboard Navigation Testing**: Comprehensive keyboard accessibility validation
+- **Responsive Accessibility**: Touch target and mobile accessibility validation
+- **Screen Reader Optimization**: Proper semantic structure and ARIA attributes
+
+For detailed accessibility documentation, see [docs/accessibility.md](docs/accessibility.md).
+
 ## 🧪 Testing
 
 The application includes comprehensive testing:
@@ -206,6 +251,7 @@ npm run test:coverage
 - **Component Tests**: React component functionality
 - **Integration Tests**: User workflows and data flow
 - **Storage Tests**: IndexedDB operations and data persistence
+- **Accessibility Tests**: WCAG compliance and usability validation
 
 Current test coverage: **90%+ of critical paths**
 

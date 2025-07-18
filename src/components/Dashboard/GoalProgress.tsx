@@ -1,16 +1,46 @@
 import React from 'react';
 import { Goal } from '../../core/types';
-import { formatDate, isWithinDays } from '../../utils';
 
 interface GoalProgressProps {
   goals: Goal[];
   onGoalClick: () => void;
 }
 
-const GoalProgress: React.FC<GoalProgressProps> = ({ goals, onGoalClick }) => {
+const GoalProgress: React.FC<GoalProgressProps> = ({ goals = [], onGoalClick }) => {
+  // Ensure goals is always an array
+  const safeGoals = Array.isArray(goals) ? goals : [];
+  
   const getProgressPercentage = (goal: Goal): number => {
     if (!goal.targetValue || goal.targetValue === 0) return 0;
     return Math.min((goal.currentValue / goal.targetValue) * 100, 100);
+  };
+
+  const isLinkedGoal = (goal: Goal): boolean => {
+    return goal.autoUpdate;
+  };
+
+  const getLinkedActionBadge = (goal: Goal): string => {
+    switch (goal.type) {
+      case 'performance': return '🎤';
+      case 'skill': return '🎵';
+      case 'recording': return '🎙️';
+      case 'financial': return '💰';
+      default: return '';
+    }
+  };
+
+  const formatDate = (date: Date): string => {
+    return new Date(date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const isWithinDays = (date: Date, days: number): boolean => {
+    const now = new Date();
+    const diffTime = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= days && diffDays >= 0;
   };
 
   const getGoalUrgency = (goal: Goal): 'urgent' | 'soon' | 'normal' => {
@@ -32,7 +62,7 @@ const GoalProgress: React.FC<GoalProgressProps> = ({ goals, onGoalClick }) => {
     }
   };
 
-  if (goals.length === 0) {
+  if (safeGoals.length === 0) {
     return (
       <div className="goal-progress">
         <div className="goal-progress-header">
@@ -59,24 +89,39 @@ const GoalProgress: React.FC<GoalProgressProps> = ({ goals, onGoalClick }) => {
       </div>
 
       <div className="goals-list">
-        {goals.slice(0, 3).map((goal) => {
+        {safeGoals.slice(0, 3).map((goal) => {
           const progress = getProgressPercentage(goal);
           const urgency = getGoalUrgency(goal);
           
           return (
             <div 
               key={goal.id} 
-              className={`goal-item goal-${urgency}`}
+              className={`goal-item goal-${urgency} ${isLinkedGoal(goal) ? 'goal-linked' : 'goal-manual'}`}
               onClick={onGoalClick}
             >
               <div className="goal-icon">
                 {getGoalTypeIcon(goal.type)}
               </div>
               <div className="goal-content">
-                <div className="goal-title">{goal.title}</div>
+                <div className="goal-header">
+                  <div className="goal-title">{goal.title}</div>
+                  <div className="goal-badges">
+                    {isLinkedGoal(goal) && (
+                      <span className="goal-linked-badge" title="Auto-updating goal">
+                        <i className="fas fa-link"></i>
+                        {getLinkedActionBadge(goal)}
+                      </span>
+                    )}
+                    {!isLinkedGoal(goal) && (
+                      <span className="goal-manual-badge" title="Manual goal">
+                        <i className="fas fa-hand-paper"></i>
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="goal-progress-bar">
                   <div 
-                    className="goal-progress-fill"
+                    className={`goal-progress-fill ${isLinkedGoal(goal) ? 'linked' : 'manual'}`}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -87,6 +132,13 @@ const GoalProgress: React.FC<GoalProgressProps> = ({ goals, onGoalClick }) => {
                       Due: {formatDate(goal.deadline)}
                     </span>
                   )}
+                  {isLinkedGoal(goal) && goal.progressHistory && goal.progressHistory.length > 0 && (
+                    <span className="goal-last-update" title="Last updated">
+                      <i className="fas fa-clock"></i>
+                      {goal.progressHistory[goal.progressHistory.length - 1]?.date && 
+                        formatDate(goal.progressHistory[goal.progressHistory.length - 1].date)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -94,10 +146,10 @@ const GoalProgress: React.FC<GoalProgressProps> = ({ goals, onGoalClick }) => {
         })}
       </div>
 
-      {goals.length > 3 && (
+      {safeGoals.length > 3 && (
         <div className="goals-summary">
           <button className="btn btn-link" onClick={onGoalClick}>
-            View all {goals.length} goals
+            View all {safeGoals.length} goals
           </button>
         </div>
       )}

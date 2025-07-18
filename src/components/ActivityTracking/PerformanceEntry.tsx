@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { MusicianProfile, PerformanceRecord } from '../../core/types';
+import React, { useState, useEffect } from 'react';
+import { MusicianProfile, PerformanceRecord, BandMember, SetList, Band } from '../../core/types';
 import { useApp } from '../../context/AppContext';
 import { storageService } from '../../services/storageService';
 import { generateId } from '../../utils';
+import BandSelector from '../GoalManagement/BandSelector';
 
 interface PerformanceEntryProps {
   profile: MusicianProfile;
@@ -11,6 +12,9 @@ interface PerformanceEntryProps {
 const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
   const { dispatch } = useApp();
   const [loading, setLoading] = useState(false);
+  const [bands, setBands] = useState<Band[]>([]);
+  const [bandMembers, setBandMembers] = useState<BandMember[]>([]);
+  const [setLists, setSetLists] = useState<SetList[]>([]);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     venueName: '',
@@ -19,10 +23,32 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
     duration: '',
     payment: '',
     notes: '',
-    setlist: ''
+    setlist: '',
+    bandMembersPresent: [] as string[],
+    setListUsed: '',
+    bandId: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadBandData();
+  }, [profile.id]);
+
+  const loadBandData = async () => {
+    try {
+      const [bandsData, bandMembersData, setListsData] = await Promise.all([
+        storageService.getBands(profile.id),
+        storageService.getBandMembers ? storageService.getBandMembers(profile.id) : Promise.resolve([]),
+        storageService.getSetLists ? storageService.getSetLists(profile.id) : Promise.resolve([])
+      ]);
+      setBands(bandsData);
+      setBandMembers(bandMembersData);
+      setSetLists(setListsData);
+    } catch (error) {
+      console.error('Error loading band data:', error);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -71,7 +97,10 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
         duration: parseInt(formData.duration),
         payment: parseFloat(formData.payment),
         notes: formData.notes.trim() || undefined,
-        setlist: formData.setlist.trim() ? formData.setlist.split(',').map(s => s.trim()) : undefined
+        setlist: formData.setlist.trim() ? formData.setlist.split(',').map(s => s.trim()) : undefined,
+        bandMembersPresent: formData.bandMembersPresent.length > 0 ? formData.bandMembersPresent : undefined,
+        setListUsed: formData.setListUsed || undefined,
+        bandId: formData.bandId || undefined
       };
 
       // Save to storage
@@ -89,7 +118,10 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
         duration: '',
         payment: '',
         notes: '',
-        setlist: ''
+        setlist: '',
+        bandMembersPresent: [],
+        setListUsed: '',
+        bandId: ''
       });
 
       // Show success message
@@ -102,7 +134,7 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -212,8 +244,34 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
           </div>
         </div>
 
+        {/* Band Selection */}
+        <BandSelector
+          bands={bands}
+          selectedBands={formData.bandId ? [formData.bandId] : []}
+          onBandSelect={(bandIds) => handleInputChange('bandId', bandIds[0] || '')}
+          allowMultiple={false}
+          label="Band (Optional)"
+        />
+
         <div className="form-group">
-          <label htmlFor="setlist">Setlist (comma-separated songs)</label>
+          <label htmlFor="setListUsed">Set List Used</label>
+          <select
+            id="setListUsed"
+            value={formData.setListUsed}
+            onChange={(e) => handleInputChange('setListUsed', e.target.value)}
+          >
+            <option value="">Select a set list (optional)</option>
+            {setLists.map(setList => (
+              <option key={setList.id} value={setList.id}>
+                {setList.name} ({setList.songs.length} songs)
+              </option>
+            ))}
+          </select>
+          <small className="form-help">Choose from your saved set lists</small>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="setlist">Custom Setlist (comma-separated songs)</label>
           <input
             type="text"
             id="setlist"
@@ -221,7 +279,36 @@ const PerformanceEntry: React.FC<PerformanceEntryProps> = ({ profile }) => {
             onChange={(e) => handleInputChange('setlist', e.target.value)}
             placeholder="Song 1, Song 2, Song 3"
           />
-          <small className="form-help">Optional: List the songs you performed</small>
+          <small className="form-help">Optional: List songs if not using a saved set list</small>
+        </div>
+
+        <div className="form-group">
+          <label>Band Members Present</label>
+          <div className="checkbox-group">
+            {bandMembers.length > 0 ? (
+              bandMembers.map(member => (
+                <label key={member.id} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.bandMembersPresent.includes(member.id)}
+                    onChange={(e) => {
+                      const newBandMembers = e.target.checked
+                        ? [...formData.bandMembersPresent, member.id]
+                        : formData.bandMembersPresent.filter(id => id !== member.id);
+                      handleInputChange('bandMembersPresent', newBandMembers);
+                    }}
+                  />
+                  <span className="checkmark"></span>
+                  {member.name} ({member.instrument})
+                </label>
+              ))
+            ) : (
+              <p className="no-band-members">
+                No band members found. <br />
+                <small>Add band members from the dashboard to track their participation.</small>
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="form-group">

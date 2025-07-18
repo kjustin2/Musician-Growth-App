@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { MusicianProfile, PerformanceRecord, PracticeSession, Goal } from '../../core/types';
+import { MusicianProfile, PerformanceRecord, PracticeSession, Goal, RecordingSession } from '../../core/types';
 import { useApp } from '../../context/AppContext';
 import { storageService } from '../../services/storageService';
 import { analyticsService } from '../../services/analyticsService';
 import { generateRecommendations } from '../../core/recommendationEngine';
-import DashboardMetrics from './DashboardMetrics';
-import RecentActivities from './RecentActivities';
-import GoalProgress from './GoalProgress';
-import QuickActions from './QuickActions';
-import DashboardCharts from './DashboardCharts';
+import DashboardTabs from './DashboardTabs';
 import NotificationCenter from '../common/NotificationCenter';
-import AchievementDisplay from '../common/AchievementDisplay';
 import OnboardingFlow from '../common/OnboardingFlow';
 import { achievementService } from '../../services/achievementService';
 import './Dashboard.css';
@@ -22,14 +17,22 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
   const { dispatch } = useApp();
   const [loading, setLoading] = useState(true);
+  const [_recordingsLoading, setRecordingsLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [dashboardData, setDashboardData] = useState<{
+  
+  // Simple cache for recordings data
+  const [recordingsCache, setRecordingsCache] = useState<{
+    data: RecordingSession[];
+    timestamp: number;
+  } | null>(null);
+  const [_dashboardData, setDashboardData] = useState<{
     recentPerformances: PerformanceRecord[];
     recentPractice: PracticeSession[];
     activeGoals: Goal[];
     allPerformances: PerformanceRecord[];
     allPractices: PracticeSession[];
     allGoals: Goal[];
+    recordings: RecordingSession[];
     metrics: {
       totalShows: number;
       totalPracticeTime: number;
@@ -43,6 +46,7 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
     allPerformances: [],
     allPractices: [],
     allGoals: [],
+    recordings: [],
     metrics: {
       totalShows: 0,
       totalPracticeTime: 0,
@@ -54,6 +58,36 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
   useEffect(() => {
     loadDashboardData();
   }, [profile.id]);
+
+  const loadRecordingsWithCache = async (): Promise<RecordingSession[]> => {
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    const now = Date.now();
+    
+    // Check if we have valid cached data
+    if (recordingsCache && (now - recordingsCache.timestamp) < CACHE_DURATION) {
+      return recordingsCache.data;
+    }
+    
+    // Load fresh data
+    setRecordingsLoading(true);
+    try {
+      const recordings = await storageService.getRecordingSessions(profile.id);
+      
+      // Update cache
+      setRecordingsCache({
+        data: recordings,
+        timestamp: now
+      });
+      
+      return recordings;
+    } catch (error) {
+      console.error('Error loading recordings:', error);
+      // Return cached data if available, otherwise empty array
+      return recordingsCache?.data || [];
+    } finally {
+      setRecordingsLoading(false);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -75,8 +109,11 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
       const goals = await storageService.getGoals(profile.id);
       const activeGoals = goals.filter(goal => goal.status === 'active');
 
+      // Load recordings with caching
+      const recordings = await loadRecordingsWithCache();
+      
       // Check for new achievements
-      await achievementService.checkAchievements(profile.id, performances, practiceSessions, goals);
+      await achievementService.checkAchievements(profile.id, performances, practiceSessions, goals, recordings);
 
       // Check if user is new (no activities logged yet)
       const isNewUser = performances.length === 0 && practiceSessions.length === 0 && goals.length === 0;
@@ -101,6 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
         allPerformances: performances,
         allPractices: practiceSessions,
         allGoals: goals,
+        recordings,
         metrics
       });
     } catch (error) {
@@ -116,12 +154,15 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
     localStorage.setItem(`onboarding_${profile.id}`, 'completed');
   };
 
-  const handleQuickAction = (action: string) => {
+  const _handleQuickAction = (action: string) => {
     switch (action) {
       case 'add-show':
         dispatch({ type: 'SET_PAGE', payload: 'activity-entry' });
         break;
       case 'log-practice':
+        dispatch({ type: 'SET_PAGE', payload: 'activity-entry' });
+        break;
+      case 'record-song':
         dispatch({ type: 'SET_PAGE', payload: 'activity-entry' });
         break;
       case 'create-goal':
@@ -158,6 +199,23 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
     }
   };
 
+  const handleProfileSwitch = () => {
+    // Check for unsaved data (in a real implementation, this would check for unsaved forms)
+    const hasUnsavedData = false; // This would be determined by checking form states
+    
+    if (hasUnsavedData) {
+      const confirmSwitch = window.confirm(
+        'You have unsaved changes. Are you sure you want to switch profiles? Your changes will be lost.'
+      );
+      if (!confirmSwitch) {
+        return;
+      }
+    }
+    
+    // Navigate to profile selection
+    dispatch({ type: 'SET_PAGE', payload: 'profile-selection' });
+  };
+
   if (loading) {
     return (
       <div className="dashboard-loading">
@@ -177,60 +235,32 @@ const Dashboard: React.FC<DashboardProps> = ({ profile }) => {
               Here's your musical journey at a glance
             </p>
           </div>
-          <NotificationCenter profileId={profile.id} />
-        </div>
-      </div>
-
-      <div className="dashboard-grid">
-        <div className="dashboard-section">
-          <DashboardMetrics metrics={dashboardData.metrics} />
-        </div>
-
-        <div className="dashboard-section">
-          <QuickActions onAction={handleQuickAction} />
-        </div>
-
-        <div className="dashboard-section">
-          <RecentActivities 
-            performances={dashboardData.recentPerformances}
-            practices={dashboardData.recentPractice}
-          />
-        </div>
-
-        <div className="dashboard-section">
-          <GoalProgress 
-            goals={dashboardData.activeGoals}
-            onGoalClick={() => dispatch({ type: 'SET_PAGE', payload: 'goal-management' })}
-          />
-        </div>
-
-        <div className="dashboard-section recommendation-card">
-          <h3>Your Personalized Recommendations</h3>
-          <p className="recommendation-description">
-            Get updated advice based on your latest activities and progress. Our AI analyzes your performance data and practice habits to provide tailored guidance.
-          </p>
-          <div className="recommendation-actions">
-            <button 
-              className="btn btn-primary btn-large"
-              onClick={handleViewRecommendations}
+          <div className="dashboard-header-actions">
+            <button
+              className="btn btn-outline-primary profile-switch-btn"
+              onClick={() => handleProfileSwitch()}
+              title="Switch Profile"
               type="button"
             >
-              View My Recommendations
+              <i className="fas fa-user-circle me-2"></i>
+              Switch Profile
             </button>
-            <div className="recommendation-hint">
-              <small>Updated based on your recent activities</small>
-            </div>
+            <button
+              className="btn btn-outline-secondary settings-btn"
+              onClick={() => dispatch({ type: 'SET_PAGE', payload: 'settings' })}
+              title="Settings"
+              type="button"
+            >
+              <i className="fas fa-cog me-2"></i>
+              Settings
+            </button>
+            <NotificationCenter profileId={profile.id} />
           </div>
         </div>
       </div>
 
-      <DashboardCharts 
-        performances={dashboardData.allPerformances}
-        practices={dashboardData.allPractices}
-        goals={dashboardData.allGoals}
-      />
-
-      <AchievementDisplay profileId={profile.id} showProgress={true} />
+      {/* New Tabbed Interface */}
+      <DashboardTabs profile={profile} />
 
       {showOnboarding && (
         <OnboardingFlow 

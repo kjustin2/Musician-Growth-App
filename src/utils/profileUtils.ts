@@ -36,6 +36,7 @@ export function createDefaultProfile(partialProfile: Partial<MusicianProfile>): 
 }
 
 export function createBasicProfile(data: {
+  name: string;
   instrument: string;
   performanceFrequency: MusicianProfile['performanceFrequency'];
   crowdSize: MusicianProfile['crowdSize'];

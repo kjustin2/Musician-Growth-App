@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { MusicianProfile, PracticeSession } from '../../core/types';
+import React, { useState, useEffect } from 'react';
+import { MusicianProfile, PracticeSession, BandMember } from '../../core/types';
 import { useApp } from '../../context/AppContext';
 import { storageService } from '../../services/storageService';
 import { generateId } from '../../utils';
+import { goalLinkingService } from '../../services/goalLinkingService';
 
 interface PracticeEntryProps {
   profile: MusicianProfile;
@@ -11,6 +12,7 @@ interface PracticeEntryProps {
 const PracticeEntry: React.FC<PracticeEntryProps> = ({ profile }) => {
   const { dispatch } = useApp();
   const [loading, setLoading] = useState(false);
+  const [bandMembers, setBandMembers] = useState<BandMember[]>([]);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     duration: '',
@@ -18,10 +20,24 @@ const PracticeEntry: React.FC<PracticeEntryProps> = ({ profile }) => {
     customFocusArea: '',
     skillsWorkedOn: [] as string[],
     customSkill: '',
-    notes: ''
+    notes: '',
+    bandMembersPresent: [] as string[]
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadBandMembers();
+  }, [profile.id]);
+
+  const loadBandMembers = async () => {
+    try {
+      const bandMembersData = await storageService.getBandMembers(profile.id);
+      setBandMembers(bandMembersData);
+    } catch (error) {
+      console.error('Error loading band members:', error);
+    }
+  };
 
   const predefinedFocusAreas = [
     'Scales',
@@ -83,11 +99,15 @@ const PracticeEntry: React.FC<PracticeEntryProps> = ({ profile }) => {
         duration: parseInt(formData.duration),
         focusAreas: formData.focusAreas,
         skillsWorkedOn: formData.skillsWorkedOn,
-        notes: formData.notes.trim() || undefined
+        notes: formData.notes.trim() || undefined,
+        bandMembersPresent: formData.bandMembersPresent.length > 0 ? formData.bandMembersPresent : undefined
       };
 
       // Save to storage
       await storageService.addPracticeSession(profile.id, practiceSession);
+
+      // Update linked goals
+      await goalLinkingService.updateGoalsForAction(profile.id, 'practice', practiceSession);
 
       // Update context
       dispatch({ type: 'ADD_PRACTICE_SESSION', payload: practiceSession });
@@ -100,7 +120,8 @@ const PracticeEntry: React.FC<PracticeEntryProps> = ({ profile }) => {
         customFocusArea: '',
         skillsWorkedOn: [],
         customSkill: '',
-        notes: ''
+        notes: '',
+        bandMembersPresent: []
       });
 
       // Show success message
@@ -263,6 +284,35 @@ const PracticeEntry: React.FC<PracticeEntryProps> = ({ profile }) => {
             >
               Add
             </button>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Band Members Present</label>
+          <div className="checkbox-group">
+            {bandMembers.length > 0 ? (
+              bandMembers.map(member => (
+                <label key={member.id} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.bandMembersPresent.includes(member.id)}
+                    onChange={(e) => {
+                      const newBandMembers = e.target.checked
+                        ? [...formData.bandMembersPresent, member.id]
+                        : formData.bandMembersPresent.filter(id => id !== member.id);
+                      setFormData(prev => ({ ...prev, bandMembersPresent: newBandMembers }));
+                    }}
+                  />
+                  <span className="checkmark"></span>
+                  {member.name} ({member.instrument})
+                </label>
+              ))
+            ) : (
+              <p className="no-band-members">
+                No band members found. <br />
+                <small>Add band members from the dashboard to track group practice sessions.</small>
+              </p>
+            )}
           </div>
         </div>
 

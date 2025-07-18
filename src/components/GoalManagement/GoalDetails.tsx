@@ -95,15 +95,16 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, onUpdate, onDelete, onB
   }
 
   return (
-    <div className="goal-details">
-      <div className="goal-details-header">
+    <div className="goal-details-modern">
+      {/* Header with navigation and actions */}
+      <div className="goal-nav-header">
         <button 
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-secondary btn-back"
           onClick={onBack}
         >
-          ← Back to Goals
+          ← Back to Dashboard
         </button>
-        <div className="goal-details-actions">
+        <div className="goal-header-actions">
           <button 
             className="btn btn-outline-primary"
             onClick={() => setIsEditing(true)}
@@ -119,84 +120,112 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, onUpdate, onDelete, onB
         </div>
       </div>
 
-      <div className="goal-details-content">
-        <div className="goal-header">
-          <div className="goal-icon-large">
-            {getGoalTypeIcon(goal.type)}
-          </div>
-          <div className="goal-header-info">
-            <h1>{goal.title}</h1>
-            <div className="goal-meta">
-              <span className={`status-badge ${getGoalStatusColor(goal.status)}`}>
-                {goal.status}
-              </span>
-              <span className="goal-type-badge">
-                {goal.type.replace('_', ' ')}
-              </span>
-              {goal.deadline && (
-                <span className={`deadline-badge urgency-${urgency}`}>
-                  Due: {formatDate(goal.deadline)}
-                  {daysUntilDeadline !== null && (
-                    <small>
-                      {daysUntilDeadline > 0 
-                        ? ` (${daysUntilDeadline} days left)`
-                        : daysUntilDeadline === 0 
-                          ? ' (Due today!)'
-                          : ` (${Math.abs(daysUntilDeadline)} days overdue)`
-                      }
-                    </small>
-                  )}
-                </span>
-              )}
+      {/* Main goal info card */}
+      <div className="goal-main-card">
+        <div className="goal-header-modern">
+          <div className="goal-title-section">
+            <div className="goal-icon-modern">
+              {getGoalTypeIcon(goal.type)}
+            </div>
+            <div className="goal-title-info">
+              <h1>{goal.title}</h1>
+              <p className="goal-description-inline">{goal.description}</p>
             </div>
           </div>
+          <div className="goal-status-badges">
+            <span className={`status-badge-modern ${getGoalStatusColor(goal.status)}`}>
+              {goal.status.toUpperCase()}
+            </span>
+            <span className="goal-type-badge-modern">
+              {goal.type.replace('_', ' ').toUpperCase()}
+            </span>
+          </div>
         </div>
 
-        <div className="goal-description">
-          <h3>Description</h3>
-          <p>{goal.description}</p>
-        </div>
+        {/* Deadline alert if urgent */}
+        {goal.deadline && urgency === 'urgent' && goal.status === 'active' && (
+          <div className="deadline-alert">
+            <span className="alert-icon">⚠️</span>
+            <div className="alert-content">
+              <strong>Deadline Approaching!</strong>
+              <p>Due {formatDate(goal.deadline)} 
+                {daysUntilDeadline !== null && (
+                  <span>
+                    {daysUntilDeadline > 0 
+                      ? ` - ${daysUntilDeadline} days left`
+                      : daysUntilDeadline === 0 
+                        ? ' - Due today!'
+                        : ` - ${Math.abs(daysUntilDeadline)} days overdue`
+                    }
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
 
+      {/* Two-column layout for progress and actions */}
+      <div className="goal-content-grid">
+        {/* Progress Section */}
         {goal.targetValue && (
-          <div className="goal-progress-section">
-            <h3>Progress</h3>
-            <div className="progress-display">
-              <div className="progress-bar-large">
-                <div 
-                  className="progress-fill"
-                  style={{ width: `${progress}%` }}
-                />
+          <div className="goal-card progress-card">
+            <div className="card-header">
+              <h3>Progress Tracking</h3>
+              <div className="progress-percentage-badge">
+                {Math.round(progress)}%
               </div>
-              <div className="progress-stats">
-                <div className="progress-current">
-                  <span className="progress-value">{goal.currentValue}</span>
-                  <span className="progress-label">Current</span>
+            </div>
+            
+            <div className="progress-visual">
+              <div className="progress-circle">
+                <svg viewBox="0 0 36 36" className="circular-chart">
+                  <path className="circle-bg"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path className="circle"
+                    strokeDasharray={`${progress}, 100`}
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="progress-center">
+                  <span className="progress-number">{Math.round(progress)}%</span>
                 </div>
-                <div className="progress-target">
-                  <span className="progress-value">{goal.targetValue}</span>
-                  <span className="progress-label">Target</span>
+              </div>
+              
+              <div className="progress-stats-modern">
+                <div className="stat-item">
+                  <span className="stat-value">{goal.currentValue}</span>
+                  <span className="stat-label">Current</span>
                 </div>
-                <div className="progress-percentage">
-                  <span className="progress-value">{Math.round(progress)}%</span>
-                  <span className="progress-label">Complete</span>
+                <div className="stat-divider">of</div>
+                <div className="stat-item">
+                  <span className="stat-value">{goal.targetValue}</span>
+                  <span className="stat-label">Target</span>
                 </div>
               </div>
             </div>
 
             {goal.status === 'active' && (
-              <div className="progress-update">
-                <h4>Update Progress</h4>
-                <div className="progress-input-group">
+              <div className="progress-update-modern">
+                <label htmlFor="progress-input">Update Progress</label>
+                <div className="progress-input-group-modern">
                   <input
+                    id="progress-input"
                     type="number"
                     value={progressUpdate}
                     onChange={(e) => setProgressUpdate(e.target.value)}
                     min="0"
                     step="0.01"
-                    className="progress-input"
+                    className="progress-input-modern"
+                    placeholder="Enter new value"
                   />
                   <button 
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-update"
                     onClick={handleUpdateProgress}
                   >
                     Update
@@ -207,82 +236,96 @@ const GoalDetails: React.FC<GoalDetailsProps> = ({ goal, onUpdate, onDelete, onB
           </div>
         )}
 
-        <div className="goal-timeline">
-          <h3>Timeline</h3>
-          <div className="timeline-item">
-            <div className="timeline-dot created"></div>
-            <div className="timeline-content">
-              <strong>Goal Created</strong>
-              <p>{formatDate(goal.createdAt)}</p>
-            </div>
+        {/* Actions and Timeline Section */}
+        <div className="goal-card actions-card">
+          <div className="card-header">
+            <h3>Actions & Timeline</h3>
           </div>
           
-          {goal.status === 'completed' && (
-            <div className="timeline-item">
-              <div className="timeline-dot completed"></div>
-              <div className="timeline-content">
-                <strong>Goal Completed</strong>
-                <p>Congratulations! 🎉</p>
-              </div>
-            </div>
-          )}
-          
-          {goal.deadline && goal.status === 'active' && (
-            <div className="timeline-item">
-              <div className={`timeline-dot deadline urgency-${urgency}`}></div>
-              <div className="timeline-content">
-                <strong>Deadline</strong>
-                <p>{formatDate(goal.deadline)}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {goal.status === 'active' && (
-          <div className="goal-actions">
-            <h3>Quick Actions</h3>
-            <div className="action-buttons">
+          {/* Quick Actions */}
+          {goal.status === 'active' && (
+            <div className="quick-actions-modern">
               <button 
-                className="btn btn-success"
+                className="action-btn success"
                 onClick={() => handleStatusChange('completed')}
               >
-                Mark as Completed
+                <span className="action-icon">✅</span>
+                Mark Complete
               </button>
               <button 
-                className="btn btn-warning"
+                className="action-btn warning"
                 onClick={() => handleStatusChange('paused')}
               >
+                <span className="action-icon">⏸️</span>
                 Pause Goal
               </button>
               <button 
-                className="btn btn-danger"
+                className="action-btn danger"
                 onClick={() => handleStatusChange('cancelled')}
               >
+                <span className="action-icon">❌</span>
                 Cancel Goal
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {goal.status === 'paused' && (
-          <div className="goal-actions">
-            <h3>Resume Goal</h3>
-            <button 
-              className="btn btn-success"
-              onClick={() => handleStatusChange('active')}
-            >
-              Resume Goal
-            </button>
-          </div>
-        )}
+          {goal.status === 'paused' && (
+            <div className="quick-actions-modern">
+              <button 
+                className="action-btn success"
+                onClick={() => handleStatusChange('active')}
+              >
+                <span className="action-icon">▶️</span>
+                Resume Goal
+              </button>
+            </div>
+          )}
 
-        {goal.status === 'completed' && (
-          <div className="goal-celebration">
-            <h3>🎉 Congratulations!</h3>
-            <p>You've successfully completed this goal. Great work!</p>
+          {/* Timeline */}
+          <div className="timeline-modern">
+            <div className="timeline-item-modern">
+              <div className="timeline-dot-modern created"></div>
+              <div className="timeline-content-modern">
+                <span className="timeline-title">Goal Created</span>
+                <span className="timeline-date">{formatDate(goal.createdAt)}</span>
+              </div>
+            </div>
+            
+            {goal.deadline && goal.status === 'active' && (
+              <div className="timeline-item-modern">
+                <div className={`timeline-dot-modern deadline urgency-${urgency}`}></div>
+                <div className="timeline-content-modern">
+                  <span className="timeline-title">Target Deadline</span>
+                  <span className="timeline-date">{formatDate(goal.deadline)}</span>
+                </div>
+              </div>
+            )}
+            
+            {goal.status === 'completed' && (
+              <div className="timeline-item-modern">
+                <div className="timeline-dot-modern completed"></div>
+                <div className="timeline-content-modern">
+                  <span className="timeline-title">Goal Completed 🎉</span>
+                  <span className="timeline-date">Congratulations!</span>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Celebration for completed goals */}
+      {goal.status === 'completed' && (
+        <div className="goal-celebration-modern">
+          <div className="celebration-content">
+            <span className="celebration-icon">🎉</span>
+            <div className="celebration-text">
+              <h3>Goal Completed!</h3>
+              <p>Congratulations on achieving your goal. You're making great progress on your musical journey!</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
