@@ -1,0 +1,27 @@
+/* Base Elements */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+a {
+  font-weight: 500;
+  color: var(--accent-blue);
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  border-radius: var(--border-radius-small);
+  transition: all 0.2s ease;
+}
+
+a:hover,
+a:focus {
+  color: var(--accent-blue-hover);
+  background-color: var(--accent-light-blue);
+  outline: none;
+}

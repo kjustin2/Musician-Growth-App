@@ -1,0 +1,69 @@
+/* Cards and List Components */
+.card {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: var(--bg-primary);
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.list-item:hover {
+  background-color: var(--bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+.list-item-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.list-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-item-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+}
+
+.list-item-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.list-item-meta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.list-item-action {
+  margin-left: 1rem;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+}

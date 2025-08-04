@@ -1,33 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
-import { visualizer } from 'rollup-plugin-visualizer'
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-    })
-  ],
+  plugins: [svelte()],
+  root: 'src/frontend',
+  build: {
+    outDir: '../../dist',
+  },
   resolve: {
     alias: {
-      '@': resolve(process.cwd(), './src'),
+      $components: './components',
+      $logic: './logic',
     },
   },
-  base: '/Musician-Growth-App/',
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          bootstrap: ['bootstrap', 'react-bootstrap'],
-        }
-      }
-    }
-  }
-})
+});

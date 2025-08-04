@@ -1,33 +1,36 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ES2017"],
+    "allowJs": false,
     "skipLibCheck": true,
-    "types": ["node", "vite/client", "@testing-library/jest-dom", "vitest/globals"],
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": ["svelte", "node"],
+    // Additional strict checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-
-    /* Path mapping */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false
   },
-  "include": ["src", "vite.config.ts"],
-  "exclude": ["vitest.config.ts", "node_modules", "dist"]
+  "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "scripts/**/*.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

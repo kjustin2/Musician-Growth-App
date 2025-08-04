@@ -1,344 +1,192 @@
-# Musician Growth App 🎵
+# Development Guidelines
 
-A comprehensive web application that helps musicians track their progress, manage goals, and receive personalized recommendations to advance their musical careers.
+## Code Quality Standards
 
-## 🎯 Project Description
+This project enforces strict TypeScript standards and code quality through automated tooling.
 
-The Musician Growth App is a production-ready React application designed to help musicians of all levels systematically track their musical journey. From beginner to professional, users can log performances, track practice sessions, set and achieve goals, and receive data-driven recommendations to accelerate their growth.
+### Tools Used
 
-### Key Features
+- **TypeScript**: Strict type checking with additional compiler options
+- **ESLint**: Code linting with TypeScript and Svelte support
+- **Prettier**: Code formatting
+- **Svelte Check**: Svelte-specific type checking
+- **tsx**: TypeScript execution for build scripts
 
-- **📊 Dashboard Analytics**: Visual charts and metrics showing performance trends, practice statistics, and goal progress
-- **🎤 Performance Tracking**: Log shows with venue details, audience size, earnings, and setlists
-- **🎵 Practice Session Management**: Track practice time, focus areas, and skill development
-- **🎯 Goal Management**: Set, track, and achieve musical goals with progress monitoring
-- **🏆 Achievement System**: Unlock achievements and receive notifications for milestones
-- **📈 Bulk Data Entry**: Efficiently backfill historical data with templates and validation
-- **🔔 Notification Center**: Real-time notifications for achievements and important updates
-- **💡 AI-Powered Recommendations**: Personalized career guidance based on your activity data and progress
-- **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
-- **🚀 Onboarding Flow**: Guided tour for new users to learn the platform
-- **♿ Accessibility Compliance**: WCAG 2.1 AA compliant with comprehensive accessibility testing and validation
+### Available Scripts
 
-### Architecture
+```bash
+# Development
+npm run dev                 # Start development server
+npm run build              # Build for production
 
-- **Frontend**: React 18 with TypeScript
-- **State Management**: React Context API
-- **Data Persistence**: IndexedDB for local storage
-- **UI Framework**: Bootstrap 5 with custom CSS
-- **Build Tool**: Vite for fast development and optimized builds
-- **Testing**: Vitest and React Testing Library
-- **Analytics**: Custom analytics service for performance insights
+# Code Quality
+npm run validate           # Auto-fix + validate all (recommended workflow)
+npm run validate:manual    # Run all checks manually (fallback)
+npm run type-check         # TypeScript type checking
+npm run check              # Svelte type checking
+npm run check:watch        # Svelte type checking in watch mode
+npm run lint               # Run ESLint (check only)
+npm run lint:fix           # Run ESLint with auto-fix
+npm run format             # Format code with Prettier
+npm run format:check       # Check if code is formatted
+```
 
-## 🛠️ Technical Stack
+### Pre-Commit Workflow
 
-| Technology | Purpose |
-|-----------|---------|
-| React 18 | Frontend framework |
-| TypeScript | Type safety and better developer experience |
-| Vite | Build tool and development server |
-| IndexedDB | Client-side database for data persistence |
-| Bootstrap 5 | CSS framework for responsive design |
-| Vitest | Testing framework |
-| React Testing Library | Component testing utilities |
-| ESLint | Code linting and quality |
+Before committing code, always run:
 
-## 🚀 Getting Started
+```bash
+npm run validate
+```
 
-### Prerequisites
+This enhanced validation script will:
 
-- Node.js (version 16 or higher)
-- npm (comes with Node.js)
+1. **Auto-fix issues**: Runs `lint:fix` and `format` to automatically resolve fixable problems
+2. **Run checks**: Validates TypeScript types, Svelte components, remaining lint issues, and formatting
+3. **Report results**: Shows clear success/failure status with colored output
 
-### Installation
+The validation process is designed to be developer-friendly by fixing what it can automatically before reporting any remaining issues that need manual attention.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Musician-Growth-App
+### TypeScript Configuration
+
+The project uses strict TypeScript settings including:
+
+- `strict: true` - All strict type checking options
+- `noUnusedLocals: true` - Error on unused local variables
+- `noUnusedParameters: true` - Error on unused parameters
+- `exactOptionalPropertyTypes: true` - Strict optional property types
+- `noImplicitReturns: true` - Error when not all code paths return a value
+- `noUncheckedIndexedAccess: true` - Add undefined to index signature results
+
+### ESLint Rules
+
+**TypeScript-Specific Rules:**
+
+- `@typescript-eslint/no-explicit-any`: No `any` types allowed
+- `@typescript-eslint/explicit-function-return-type`: Explicit function return types required (warning)
+- `@typescript-eslint/no-unused-vars`: No unused variables (except those prefixed with `_`)
+- `@typescript-eslint/prefer-nullish-coalescing`: Prefer `??` over `||`
+- `@typescript-eslint/prefer-optional-chain`: Prefer `?.` over manual checks
+- `@typescript-eslint/no-floating-promises`: All promises must be handled
+- `@typescript-eslint/no-unsafe-*`: Prevent unsafe operations on `any` types
+- `@typescript-eslint/no-non-null-assertion`: Forbid `!` non-null assertions
+- `@typescript-eslint/switch-exhaustiveness-check`: Ensure switch statements are exhaustive
+- `@typescript-eslint/prefer-readonly`: Prefer readonly for class properties
+
+**Code Quality Rules:**
+
+- `prefer-template`: Use template literals instead of string concatenation
+- `object-shorthand`: Use ES6 object shorthand
+- `eqeqeq`: Always use strict equality (`===`)
+- `curly`: Always use braces for control statements
+- `no-implicit-coercion`: Prevent implicit type coercion
+- `prefer-arrow-callback`: Prefer arrow functions for callbacks
+- `no-duplicate-imports`: Prevent duplicate imports
+
+### IDE Setup
+
+For VS Code users:
+
+1. Install recommended extensions (see `.vscode/extensions.json`)
+2. Settings are pre-configured for format-on-save and lint-on-save
+3. TypeScript strict mode is enabled
+
+### Troubleshooting
+
+**ESLint errors about missing parser:**
+
+```bash
+npm install
+```
+
+**TypeScript errors in Svelte files:**
+Make sure you have the Svelte VS Code extension installed.
+
+**Prettier conflicts with ESLint:**
+The configuration is set up to avoid conflicts. Run `npm run lint:fix` followed by `npm run format`.
+
+**Fixing Common ESLint Errors:**
+
+1. **`@typescript-eslint/no-explicit-any`**: Replace `any` with proper types
+
+   ```typescript
+   // Bad
+   function process(data: any): any {}
+
+   // Good
+   function process(data: UserData): ProcessedData {}
    ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
+2. **`@typescript-eslint/explicit-function-return-type`**: Add return types
+
+   ```typescript
+   // Bad
+   function getName() {
+     return 'John';
+   }
+
+   // Good
+   function getName(): string {
+     return 'John';
+   }
    ```
 
-3. **Start the development server**
-   ```bash
-   npm run dev
+3. **`@typescript-eslint/no-floating-promises`**: Handle promises
+
+   ```typescript
+   // Bad
+   fetchData();
+
+   // Good
+   void fetchData(); // or await fetchData(); or fetchData().catch(handleError);
    ```
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173` to view the application
+4. **`@typescript-eslint/no-non-null-assertion`**: Use proper null checks
 
-### Building for Production
+   ```typescript
+   // Bad
+   const element = document.getElementById('app')!;
 
-1. **Create a production build**
-   ```bash
-   npm run build
+   // Good
+   const element = document.getElementById('app');
+   if (!element) throw new Error('Element not found');
    ```
 
-2. **Preview the production build**
-   ```bash
-   npm run preview
-   ```
+### Best Practices
 
-The build artifacts will be stored in the `dist/` directory.
+1. **Type Everything**: Avoid `any`, use proper types
+2. **Handle Errors**: Always handle promises and potential errors
+3. **Use Stores**: For reactive state in Svelte components
+4. **Consistent Naming**: Use camelCase for variables, PascalCase for components
+5. **Small Functions**: Keep functions focused and testable
+6. **Comments**: Document complex logic and business rules
 
-## 📜 Available Scripts
+### Adding New Dependencies
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Starts the development server |
-| `npm run build` | Creates a production build |
-| `npm run preview` | Previews the production build |
-| `npm run test` | Runs the test suite |
-| `npm run test:watch` | Runs tests in watch mode |
-| `npm run lint` | Runs ESLint to check code quality |
-| `npm run lint:fix` | Fixes ESLint errors automatically |
-| `npm run deploy` | Deploys to GitHub Pages |
+When adding new packages:
 
-## 🏗️ Project Structure
+1. Install the package: `npm install package-name`
+2. If it's a dev dependency: `npm install -D package-name`
+3. Update types if needed: `npm install -D @types/package-name`
+4. Run validation: `npm run validate`
+
+### File Organization
 
 ```
 src/
-├── components/           # React components (feature-based organization)
-│   ├── ActivityTracking/ # Performance and practice session tracking
-│   ├── BulkEntry/        # Bulk data entry forms and validation
-│   ├── Dashboard/        # Main dashboard with analytics and charts
-│   ├── GoalManagement/   # Goal setting, tracking, and progress
-│   ├── LandingPage/      # Landing page and onboarding flow
-│   ├── MusicianForm/     # Profile creation and editing forms
-│   ├── ProfileSelection/ # Profile management and switching
-│   ├── Recommendation/   # Recommendation display and algorithms
-│   └── common/           # Shared UI components (ErrorBoundary, etc.)
-├── context/              # React Context for global state
-│   └── AppContext.tsx    # Main application context with reducer pattern
-├── core/                 # Business logic, types, and constants
-│   ├── types.ts          # Comprehensive TypeScript type definitions
-│   ├── constants.ts      # Application constants and configuration
-│   ├── achievementTypes.ts # Achievement system types and definitions
-│   └── recommendationEngine.ts # Recommendation algorithms
-├── services/             # External services and data operations
-│   ├── storageService.ts # IndexedDB storage operations
-│   ├── analyticsService.ts # Data analysis and performance metrics
-│   └── achievementService.ts # Achievement management and progress tracking
-├── utils/                # Pure utility functions
-│   ├── index.ts          # Common utility functions
-│   └── accessibility.ts  # Comprehensive accessibility testing and validation utilities
-├── hooks/                # Custom React hooks (currently empty)
-├── styles/               # Global and shared CSS
-├── tests/                # Cross-cutting tests (accessibility, responsive)
-├── App.tsx               # Main application component
-├── main.tsx              # Application entry point
-└── index.css             # Global styles
+├── frontend/
+│   ├── components/     # Svelte components
+│   ├── logic/         # Business logic (TypeScript)
+│   └── App.svelte     # Root component
+├── backend/
+│   └── database/      # Database logic
+└── shared/            # Shared utilities
+scripts/
+└── validate.ts        # TypeScript validation script
 ```
 
-## 📊 Data Models and Architecture
+Keep business logic separate from UI components for better testability and maintainability.
 
-The Musician Growth App features a comprehensive data model designed for professional music career tracking:
+### Validation Script
 
-### Core Data Types
-- **MusicianProfile**: Complete musician profile with activity history
-- **PerformanceRecord**: Detailed show tracking with venue, audience, and earnings data
-- **PracticeSession**: Structured practice logging with focus areas and skills
-- **Goal**: Comprehensive goal management with progress tracking
-- **Achievement**: Gamified achievement system with multiple tiers
-
-### Advanced Features
-- **Analytics Engine**: Automated trend analysis and insights
-- **Achievement System**: 15+ achievements across 4 categories (Bronze to Platinum)
-- **Recommendation Engine**: AI-driven suggestions for career growth
-- **Contextual Navigation**: Smart navigation that adapts based on user journey (onboarding vs dashboard flows)
-- **User Preferences**: Comprehensive settings and customization
-- **Error Handling**: Robust error management with recovery options
-
-For detailed documentation of all data models and types, see [docs/data-models.md](docs/data-models.md).
-
-## 🎮 Usage Guide
-
-### For New Users
-
-1. **Create a Profile**: Set up your musician profile with instrument and experience details
-2. **Take the Tour**: Follow the onboarding flow to learn about all features
-3. **Log Your First Activity**: Add a performance or practice session
-4. **Set Goals**: Create your first musical goal to work towards
-5. **Track Progress**: Use the dashboard to monitor your growth over time
-
-### Core Workflows
-
-#### Performance Tracking
-- Navigate to Activity Tracking → Performance Entry
-- Fill in show details (venue, audience, payment, etc.)
-- View performance history and trends in the dashboard
-
-#### Practice Session Logging
-- Go to Activity Tracking → Practice Entry
-- Log practice time, focus areas, and skills worked on
-- Track practice consistency and improvement over time
-
-#### Goal Management
-- Access Goal Management from the dashboard
-- Create goals with specific targets and deadlines
-- Monitor progress automatically based on your activities
-
-#### Bulk Data Entry
-- Use Bulk Entry to quickly add multiple activities
-- Apply templates for common values
-- Validate and import historical data efficiently
-
-## ♿ Accessibility
-
-The Musician Growth App is built with accessibility as a core principle, ensuring all users can effectively use the application regardless of their abilities.
-
-### WCAG 2.1 AA Compliance
-
-- **Color Contrast**: All text meets minimum 4.5:1 contrast ratio requirements
-- **Keyboard Navigation**: Full keyboard accessibility with visible focus indicators
-- **Screen Reader Support**: Proper ARIA labels, roles, and semantic HTML
-- **Touch Targets**: Minimum 44px touch targets for mobile accessibility
-- **Responsive Design**: Accessible across all device sizes and orientations
-
-### Accessibility Testing Tools
-
-The application includes comprehensive accessibility validation utilities:
-
-```typescript
-import { 
-  validateAccessibility, 
-  calculateContrastRatio, 
-  validateTabAccessibility,
-  ACCESSIBILITY_COLORS 
-} from '@/utils/accessibility';
-
-// Validate element accessibility
-const result = validateAccessibility(element, {
-  checkContrast: true,
-  checkKeyboard: true,
-  checkResponsive: true,
-  viewportWidth: window.innerWidth
-});
-```
-
-### Built-in Accessibility Features
-
-- **WCAG-Compliant Color Palette**: Pre-validated color combinations
-- **Automated Contrast Validation**: Real-time color contrast checking
-- **Keyboard Navigation Testing**: Comprehensive keyboard accessibility validation
-- **Responsive Accessibility**: Touch target and mobile accessibility validation
-- **Screen Reader Optimization**: Proper semantic structure and ARIA attributes
-
-For detailed accessibility documentation, see [docs/accessibility.md](docs/accessibility.md).
-
-## 🧪 Testing
-
-The application includes comprehensive testing:
-
-```bash
-# Run all tests
-npm run test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
-```
-
-### Test Coverage
-
-- **Unit Tests**: Core business logic and utilities
-- **Component Tests**: React component functionality
-- **Integration Tests**: User workflows and data flow
-- **Storage Tests**: IndexedDB operations and data persistence
-- **Accessibility Tests**: WCAG compliance and usability validation
-
-Current test coverage: **90%+ of critical paths**
-
-## 🔧 Development
-
-### Code Quality
-
-The project enforces code quality through:
-- **TypeScript**: Strict type checking
-- **ESLint**: Code linting and formatting
-- **Prettier**: Code formatting (integrated with ESLint)
-- **Husky**: Git hooks for pre-commit checks
-
-### Contributing Guidelines
-
-1. **Code Style**: Follow the existing TypeScript and React patterns
-2. **Testing**: Add tests for new features and bug fixes
-3. **Documentation**: Update README and inline comments as needed
-4. **Type Safety**: Maintain strict TypeScript compliance
-
-## 📱 Browser Support
-
-- **Chrome**: Latest 2 versions
-- **Firefox**: Latest 2 versions
-- **Safari**: Latest 2 versions
-- **Edge**: Latest 2 versions
-
-### Requirements
-
-- **IndexedDB**: Required for data persistence
-- **ES6+ Features**: Modern JavaScript support
-- **Local Storage**: For user preferences and onboarding state
-
-## 🚀 Deployment
-
-### GitHub Pages
-
-The project is configured for GitHub Pages deployment:
-
-```bash
-npm run deploy
-```
-
-### Custom Deployment
-
-For other hosting platforms:
-
-1. Build the project: `npm run build`
-2. Deploy the `dist/` folder to your hosting service
-3. Configure your server to serve `index.html` for all routes (SPA support)
-
-### Environment Configuration
-
-The application uses these environment variables:
-
-- `VITE_APP_TITLE`: Application title (default: "Musician Growth App")
-- `VITE_BASE_URL`: Base URL for deployment (default: "/Musician-Growth-App/")
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Build Errors**: Ensure Node.js version 16+ is installed
-2. **Storage Issues**: Check that IndexedDB is supported in your browser
-3. **Performance**: Clear browser cache and IndexedDB data if needed
-
-### Debug Mode
-
-Enable debug logging by setting `localStorage.debug = 'true'` in browser console.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Support
-
-For questions, issues, or feature requests:
-- Create an issue in the GitHub repository
-- Review the documentation in the `docs/` folder
-- Check the troubleshooting section above
-
-## 🎉 Acknowledgments
-
-- Built with React, TypeScript, and modern web technologies
-- Inspired by the need for better musician progress tracking tools
-- Designed for musicians of all levels and genres
-
----
-
-**Happy practicing! 🎵**
+The project includes a TypeScript validation script (`scripts/validate.ts`) that runs all quality checks with colored output and proper error handling. This script is executed via `npm run validate` and provides a better developer experience than running individual commands manually.
