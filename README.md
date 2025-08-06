@@ -1,6 +1,37 @@
-# Development Guidelines
+# Svelte + Dexie.js Application
 
-## Code Quality Standards
+A TypeScript-based Svelte application with IndexedDB storage, featuring strict type safety and automated deployment to GitHub Pages.
+
+## 🚀 Live Demo
+
+The application is automatically deployed to GitHub Pages: [View Live App](https://yourusername.github.io/svelte-dexie-app/)
+
+## 📦 Deployment
+
+This app automatically deploys to GitHub Pages when you push to the main branch. The deployment process:
+
+1. Runs full validation (TypeScript, ESLint, Prettier, Svelte checks)
+2. Builds the production version with proper base path
+3. Deploys to GitHub Pages
+
+### Manual Deployment
+
+To deploy manually:
+
+```bash
+npm run build:gh-pages  # Build for GitHub Pages
+```
+
+### Setting Up GitHub Pages
+
+1. Go to your repository settings
+2. Navigate to "Pages" section
+3. Set source to "GitHub Actions"
+4. Push to main branch to trigger deployment
+
+## Development Guidelines
+
+### Code Quality Standards
 
 This project enforces strict TypeScript standards and code quality through automated tooling.
 

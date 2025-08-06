@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "build:gh-pages": "NODE_ENV=production vite build",
     "dev": "vite dev",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",

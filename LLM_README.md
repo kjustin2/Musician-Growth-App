@@ -269,6 +269,7 @@ npm run validate  # Automated validation with auto-fixes
 
 - `npm run dev` - Development server
 - `npm run build` - Production build
+- `npm run build:gh-pages` - Production build for GitHub Pages deployment
 - `npm run validate` - Full validation pipeline
 - `npm run lint:fix` - Auto-fix linting issues
 - `npm run format` - Format all files
@@ -282,6 +283,54 @@ Always run `npm run validate` before committing. This ensures:
 - All ESLint rules pass
 - All files are properly formatted
 - Svelte components are valid
+
+## Deployment
+
+### GitHub Pages Deployment
+
+The application is configured for automatic deployment to GitHub Pages using GitHub Actions.
+
+#### Deployment Configuration
+
+**Vite Configuration:**
+
+- Dynamic base path: Uses `/svelte-dexie-app/` for production, `/` for development
+- Production builds include proper asset paths for GitHub Pages
+- `.nojekyll` file ensures Vite assets are served correctly
+
+**GitHub Actions Workflow (`.github/workflows/deploy.yml`):**
+
+- Triggers on push to main branch
+- Runs full validation pipeline before deployment
+- Uses Node.js 18 with npm caching
+- Deploys to GitHub Pages environment with proper permissions
+
+#### Deployment Process
+
+1. **Automated**: Push to main branch triggers deployment
+2. **Validation**: Runs `npm run validate` to ensure code quality
+3. **Build**: Executes `npm run build:gh-pages` with production environment
+4. **Deploy**: Uploads build artifacts and deploys to GitHub Pages
+
+#### Manual Deployment
+
+```bash
+# Build for GitHub Pages
+npm run build:gh-pages
+
+# The dist/ directory contains the deployable assets
+```
+
+#### Setup Requirements
+
+1. **Repository Settings**: Enable GitHub Pages with "GitHub Actions" as source
+2. **Repository Name**: Update base path in `vite.config.ts` to match repository name
+3. **Permissions**: Workflow has required permissions for Pages deployment
+
+#### Live Application
+
+Once deployed, the application is available at:
+`https://[username].github.io/[repository-name]/`
 
 ## Code Standards to Follow
 
@@ -374,6 +423,8 @@ When adding new entities, follow this pattern:
 - **Bulk operations**: Optimized database operations
 - **Lazy loading**: Load data on mount
 - **Transaction batching**: Group related operations
+- **Production builds**: Optimized Vite builds with tree-shaking and minification
+- **Asset optimization**: Proper base paths for CDN-like serving on GitHub Pages
 
 ## Security Practices
 
@@ -382,5 +433,27 @@ When adding new entities, follow this pattern:
 - **Error boundaries**: Graceful error handling
 - **Logging**: Comprehensive operation logging
 - **No eval**: Strict CSP-compatible code
+- **Secure deployment**: GitHub Actions with minimal required permissions
+- **Static hosting**: Client-side only application with no server-side vulnerabilities
 
-This codebase represents enterprise-level TypeScript/Svelte development with maximum type safety, comprehensive validation, and maintainable architecture patterns.
+## Production Deployment
+
+### Build Process
+
+The production build process includes:
+
+1. **Environment Detection**: `NODE_ENV=production` sets proper base paths
+2. **Asset Optimization**: Vite optimizes bundles, images, and CSS
+3. **Type Safety**: Full TypeScript compilation with strict settings
+4. **Code Quality**: Complete validation pipeline before deployment
+5. **Static Generation**: Pure client-side application suitable for CDN hosting
+
+### Deployment Architecture
+
+- **Static Hosting**: GitHub Pages serves pre-built static assets
+- **Client-Side Routing**: Svelte handles navigation without server requirements
+- **IndexedDB Storage**: All data stored locally in browser
+- **Progressive Enhancement**: Works offline after initial load
+- **Cross-Browser Compatibility**: Modern browser support with polyfills
+
+This codebase represents enterprise-level TypeScript/Svelte development with maximum type safety, comprehensive validation, maintainable architecture patterns, and production-ready deployment automation.
