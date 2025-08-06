@@ -312,6 +312,33 @@ The application is configured for automatic deployment to GitHub Pages using Git
 3. **Build**: Executes `npm run build:gh-pages` with production environment
 4. **Deploy**: Uploads build artifacts and deploys to GitHub Pages
 
+#### Common Deployment Issues & Solutions
+
+**Platform-Specific Dependencies:**
+
+- Issue: `@rollup/rollup-win32-x64-msvc` fails on Linux GitHub Actions
+- Solution: Remove platform-specific Rollup dependencies; Vite handles platform detection automatically
+- Lesson: Avoid explicit platform-specific dependencies in package.json
+
+**Incorrect Base Path Configuration:**
+
+- Issue: Assets return 404 errors due to wrong base path
+- Solution: Ensure `base` in vite.config.ts matches exact repository name
+- Example: `/Musician-Growth-App/` not `/svelte-dexie-app/`
+- Verification: Check generated `dist/index.html` for correct asset paths
+
+**Cross-Platform Build Scripts:**
+
+- Issue: `NODE_ENV=production` syntax fails on Windows CMD
+- Solution: Use `cross-env` package for environment variable compatibility
+- Implementation: `cross-env NODE_ENV=production vite build`
+
+**Missing Static Files:**
+
+- Issue: `.nojekyll` file not copied to build output
+- Solution: Configure `publicDir: '../../public'` in Vite config
+- Importance: GitHub Pages needs `.nojekyll` to serve Vite-built assets correctly
+
 #### Manual Deployment
 
 ```bash
@@ -327,10 +354,46 @@ npm run build:gh-pages
 2. **Repository Name**: Update base path in `vite.config.ts` to match repository name
 3. **Permissions**: Workflow has required permissions for Pages deployment
 
+#### Deployment Troubleshooting
+
+**Debugging Failed Deployments:**
+
+1. **Check GitHub Actions Logs**: Review build output for specific errors
+2. **Verify Asset Paths**: Inspect `dist/index.html` for correct base path references
+3. **Test Local Build**: Run `npm run build:gh-pages` locally to catch issues early
+4. **Browser Console**: Check for 404 errors indicating path mismatches
+
+**Key Configuration Files:**
+
+```typescript
+// vite.config.ts - Critical settings
+export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/Musician-Growth-App/' : '/',
+  publicDir: '../../public', // Ensures .nojekyll is copied
+  build: {
+    outDir: '../../dist',
+    emptyOutDir: true, // Clean builds
+  },
+});
+```
+
+**Dependencies for Deployment:**
+
+- `cross-env`: Cross-platform environment variables
+- `@sveltejs/vite-plugin-svelte`: Svelte compilation
+- No platform-specific Rollup dependencies needed
+
 #### Live Application
 
 Once deployed, the application is available at:
 `https://[username].github.io/[repository-name]/`
+
+**Deployment Verification:**
+
+- Assets load without 404 errors
+- Application renders correctly (no blank white screen)
+- Browser console shows no critical errors
+- IndexedDB functionality works in production environment
 
 ## Code Standards to Follow
 
@@ -442,11 +505,30 @@ When adding new entities, follow this pattern:
 
 The production build process includes:
 
-1. **Environment Detection**: `NODE_ENV=production` sets proper base paths
-2. **Asset Optimization**: Vite optimizes bundles, images, and CSS
+1. **Environment Detection**: `cross-env NODE_ENV=production` sets proper base paths (cross-platform)
+2. **Asset Optimization**: Vite optimizes bundles, images, and CSS with correct base paths
 3. **Type Safety**: Full TypeScript compilation with strict settings
 4. **Code Quality**: Complete validation pipeline before deployment
 5. **Static Generation**: Pure client-side application suitable for CDN hosting
+6. **Asset Path Resolution**: Dynamic base path ensures assets load correctly on GitHub Pages
+7. **Static File Copying**: Public directory assets (including .nojekyll) copied to build output
+
+### Build Troubleshooting
+
+**Common Build Issues:**
+
+1. **Platform Compatibility**: Use `cross-env` for environment variables across Windows/Linux
+2. **Asset Path Errors**: Verify base path matches repository name exactly
+3. **Missing Static Files**: Ensure `publicDir` is configured correctly in Vite config
+4. **Dependency Conflicts**: Avoid platform-specific dependencies that fail in CI/CD
+
+**Build Verification Steps:**
+
+```bash
+npm run build:gh-pages          # Build for production
+ls dist/                        # Verify .nojekyll exists
+cat dist/index.html            # Check asset paths include base path
+```
 
 ### Deployment Architecture
 
@@ -456,4 +538,27 @@ The production build process includes:
 - **Progressive Enhancement**: Works offline after initial load
 - **Cross-Browser Compatibility**: Modern browser support with polyfills
 
-This codebase represents enterprise-level TypeScript/Svelte development with maximum type safety, comprehensive validation, maintainable architecture patterns, and production-ready deployment automation.
+## Deployment Lessons Learned
+
+### Critical Configuration Requirements
+
+1. **Exact Repository Name Matching**: Base path must match GitHub repository name precisely
+2. **Cross-Platform Compatibility**: Use `cross-env` for environment variables in npm scripts
+3. **Static File Management**: Configure `publicDir` to ensure all public assets are copied
+4. **Platform-Agnostic Dependencies**: Avoid explicit platform-specific packages in package.json
+
+### Production Deployment Best Practices
+
+- **Local Testing**: Always test production builds locally before deployment
+- **Asset Path Verification**: Inspect generated HTML for correct asset references
+- **GitHub Actions Debugging**: Use workflow logs to identify platform-specific issues
+- **Browser Console Monitoring**: Check for 404 errors indicating configuration problems
+
+### Deployment Architecture Insights
+
+- **Static Hosting Optimization**: GitHub Pages serves pre-built assets with proper MIME types
+- **Client-Side Routing**: Svelte handles navigation without server-side configuration
+- **IndexedDB Persistence**: Database works identically in production and development
+- **Build Reproducibility**: Consistent builds across development and CI/CD environments
+
+This codebase represents enterprise-level TypeScript/Svelte development with maximum type safety, comprehensive validation, maintainable architecture patterns, production-ready deployment automation, and battle-tested deployment troubleshooting knowledge.

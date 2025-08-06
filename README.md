@@ -4,7 +4,7 @@ A TypeScript-based Svelte application with IndexedDB storage, featuring strict t
 
 ## 🚀 Live Demo
 
-The application is automatically deployed to GitHub Pages: [View Live App](https://yourusername.github.io/svelte-dexie-app/)
+The application is automatically deployed to GitHub Pages: [View Live App](https://yourusername.github.io/Musician-Growth-App/)
 
 ## 📦 Deployment
 

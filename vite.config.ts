@@ -4,10 +4,12 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [svelte()],
   root: 'src/frontend',
-  base: process.env.NODE_ENV === 'production' ? '/svelte-dexie-app/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/Musician-Growth-App/' : '/',
   build: {
     outDir: '../../dist',
+    emptyOutDir: true,
   },
+  publicDir: '../../public',
   resolve: {
     alias: {
       $components: './components',
