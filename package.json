@@ -19,7 +19,6 @@
     "validate:manual": "npm run type-check && npm run check && npm run lint && npm run format:check"
   },
   "devDependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.46.2",
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^20.11.17",
