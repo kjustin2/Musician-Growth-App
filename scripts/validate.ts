@@ -71,6 +71,7 @@ for (const check of checks) {
 
 if (hasErrors) {
   console.log(chalk.red('💥 Validation failed! Please fix the issues above.'));
+  // eslint-disable-next-line no-process-exit
   process.exit(1);
 } else {
   console.log(chalk.green('🎉 All validation checks passed!'));

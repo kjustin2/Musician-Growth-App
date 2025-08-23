@@ -1,7 +1,7 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
-import type { User } from '../../backend/database/types.js';
-import { debugLog, errorLog } from '../../backend/logger.js';
-import { authService } from '../../backend/services/auth/AuthService.js';
+import type { User } from '../../../backend/database/types.js';
+import { debugLog, errorLog } from '../../../backend/logger.js';
+import { authService } from '../../../backend/services/auth/AuthService.js';
 
 /**
  * Authentication state and logic for the frontend

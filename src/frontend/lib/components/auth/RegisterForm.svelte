@@ -1,31 +1,54 @@
-<script>
+<script lang="ts">
+  import type { AuthState } from '$lib/logic/authLogic';
+  import { formValidators, type TouchedFields } from '$lib/logic/formValidation';
+  import { getLoadingButtonText, hasAllRequiredFields } from '$lib/logic/uiUtils';
   import { createEventDispatcher } from 'svelte';
-  import { formValidators } from '../../logic/formValidation.ts';
-  import { getLoadingButtonText, isFormReady } from '../../logic/uiUtils.ts';
   import FormField from '../shared/FormField.svelte';
 
-  export let authState;
-  export let onRegister;
+  export let authState: AuthState;
+  export let onRegister: (
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => Promise<void>;
 
   const dispatch = createEventDispatcher();
 
   let email = '';
   let password = '';
   let confirmPassword = '';
+  let touchedFields: TouchedFields = {};
+  let showAllErrors = false;
 
-  $: validationErrors = formValidators.register(email, password, confirmPassword);
-  $: canSubmit = isFormReady(
-    ['email', 'password', 'confirmPassword'],
-    { email, password, confirmPassword },
-    validationErrors
+  $: validationErrors = formValidators.register(
+    email,
+    password,
+    confirmPassword,
+    touchedFields,
+    showAllErrors
   );
+  $: canSubmit =
+    hasAllRequiredFields(['email', 'password', 'confirmPassword'], {
+      email,
+      password,
+      confirmPassword,
+    }) && Object.keys(validationErrors).length === 0;
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
+  function handleFieldBlur(fieldName: string): void {
+    touchedFields[fieldName] = true;
+    touchedFields = { ...touchedFields }; // Trigger reactivity
+  }
+
+  async function handleSubmit(): Promise<void> {
+    showAllErrors = true;
+
+    if (!canSubmit) {
+      return;
+    }
 
     try {
       await onRegister(email, password, confirmPassword);
-    } catch (error) {
+    } catch {
       // Error is handled by the auth logic
     }
   }
@@ -47,6 +70,7 @@
       required
       disabled={authState.isLoading}
       error={validationErrors.email}
+      on:blur={() => handleFieldBlur('email')}
     />
 
     <FormField
@@ -58,6 +82,7 @@
       required
       disabled={authState.isLoading}
       error={validationErrors.password}
+      on:blur={() => handleFieldBlur('password')}
     />
 
     <FormField
@@ -69,6 +94,7 @@
       required
       disabled={authState.isLoading}
       error={validationErrors.confirmPassword}
+      on:blur={() => handleFieldBlur('confirmPassword')}
     />
 
     {#if authState.error}
@@ -91,5 +117,5 @@
 </div>
 
 <style>
-  @import '../../css/components/forms.css';
+  @import '$lib/styles/components/forms.css';
 </style>

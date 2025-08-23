@@ -6,6 +6,10 @@ export interface ValidationErrors {
   [key: string]: string;
 }
 
+export interface TouchedFields {
+  [key: string]: boolean;
+}
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
@@ -47,20 +51,25 @@ export const validators = {
 };
 
 /**
- * Validate forms with field mapping
+ * Validate forms with field mapping and touched state
  */
 export function validateForm(
   fields: Record<string, string>,
-  rules: Record<string, (value: string, fields?: Record<string, string>) => string | null>
+  rules: Record<string, (value: string, fields?: Record<string, string>) => string | null>,
+  touchedFields: TouchedFields = {},
+  showAllErrors: boolean = false
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
   for (const [field, validator] of Object.entries(rules)) {
     const fieldValue = fields[field];
     if (fieldValue !== undefined) {
-      const error = validator(fieldValue, fields);
-      if (error) {
-        errors[field] = error;
+      // Only show errors if field has been touched or we're showing all errors (e.g., on submit)
+      if (showAllErrors || touchedFields[field]) {
+        const error = validator(fieldValue, fields);
+        if (error) {
+          errors[field] = error;
+        }
       }
     }
   }
@@ -72,16 +81,29 @@ export function validateForm(
  * Pre-configured form validators
  */
 export const formValidators = {
-  login: (email: string, password: string): ValidationErrors =>
+  login: (
+    email: string,
+    password: string,
+    touchedFields: TouchedFields = {},
+    showAllErrors: boolean = false
+  ): ValidationErrors =>
     validateForm(
       { email, password },
       {
         email: validators.email,
         password: (pwd: string) => (pwd ? null : 'Password is required'),
-      }
+      },
+      touchedFields,
+      showAllErrors
     ),
 
-  register: (email: string, password: string, confirmPassword: string): ValidationErrors =>
+  register: (
+    email: string,
+    password: string,
+    confirmPassword: string,
+    touchedFields: TouchedFields = {},
+    showAllErrors: boolean = false
+  ): ValidationErrors =>
     validateForm(
       { email, password, confirmPassword },
       {
@@ -91,6 +113,8 @@ export const formValidators = {
           fields?.password && fields.confirmPassword
             ? validators.confirmPassword(fields.password, fields.confirmPassword)
             : null,
-      }
+      },
+      touchedFields,
+      showAllErrors
     ),
 };

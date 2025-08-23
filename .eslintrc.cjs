@@ -1,17 +1,19 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'svelte'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:svelte/recommended',
     'prettier',
   ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
     project: './tsconfig.json',
+    extraFileExtensions: ['.svelte'],
   },
   env: {
     browser: true,
@@ -56,6 +58,17 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['*.svelte'],
+      parser: 'svelte-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+      },
+      rules: {
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+      },
+    },
+    {
       files: ['scripts/**/*.ts'],
       rules: {
         'no-console': 'off',
@@ -77,9 +90,9 @@ module.exports = {
   ],
   ignorePatterns: [
     '*.cjs',
-    '*.svelte',
     'dist/',
     'node_modules/',
+    '.svelte-kit/',
     'vite.config.ts',
     'svelte.config.js',
   ],

@@ -1,20 +1,28 @@
-<script>
+<script lang="ts">
+  import AuthPage from '$lib/components/auth/AuthPage.svelte';
+  import Dashboard from '$lib/components/dashboard/Dashboard.svelte';
+  import { createAuthLogic } from '$lib/logic/authLogic';
   import { onMount } from 'svelte';
-  import AuthPage from './components/auth/AuthPage.svelte';
-  import Dashboard from './components/dashboard/Dashboard.svelte';
-  import { createAuthLogic } from './logic/authLogic.ts';
 
   const authLogic = createAuthLogic();
   const { authState, logout, initialize } = authLogic;
 
-  onMount(async () => {
-    await initialize();
+  onMount(() => {
+    initialize();
   });
 
-  async function handleLogout() {
-    await logout();
+  function handleLogout(): void {
+    logout();
   }
 </script>
+
+<svelte:head>
+  <title>ChordLine - Musician Growth App</title>
+  <meta
+    name="description"
+    content="Track your musical progress and achieve your goals with ChordLine"
+  />
+</svelte:head>
 
 <main>
   {#if $authState.isLoading}
@@ -30,7 +38,7 @@
 </main>
 
 <style>
-  @import './css/components/loading.css';
+  @import '$lib/styles/components/loading.css';
 
   main {
     width: 100%;

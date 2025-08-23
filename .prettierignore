@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 .output/
+.svelte-kit/
 
 # Generated files
 *.min.js
@@ -29,3 +30,6 @@ coverage/
 # IDE
 .vscode/
 .idea/
+
+# SvelteKit
+.svelte-kit/

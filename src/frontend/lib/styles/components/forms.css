@@ -26,47 +26,7 @@
   font-size: 0.9rem;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.form-input.error {
-  border-color: #dc3545;
-}
-
-.form-input:disabled {
-  background-color: #f8f9fa;
-  cursor: not-allowed;
-}
-
-.error-message {
-  display: block;
-  margin-top: 0.25rem;
-  color: #dc3545;
-  font-size: 0.875rem;
-}
+/* Form field styles are now handled by the FormField component */
 
 .form-error {
   background-color: #f8d7da;

@@ -1,16 +1,19 @@
-<script>
-  import { formatUserGreeting, getLoadingButtonText } from '../../logic/uiUtils.ts';
+<script lang="ts">
+  import { formatUserGreeting, getLoadingButtonText } from '$lib/logic/uiUtils';
+  import type { User } from '../../../../backend/database/types.js';
 
-  export let user;
-  export let onLogout;
+  export let user: User;
+  export let onLogout: () => void;
 
   let isLoggingOut = false;
 
-  async function handleLogout() {
+  function handleLogout(): void {
     try {
       isLoggingOut = true;
-      await onLogout();
+      onLogout();
     } catch (error) {
+      // Log error for debugging but don't show to user since logout should always work
+      // eslint-disable-next-line no-console
       console.error('Logout failed:', error);
     } finally {
       isLoggingOut = false;
@@ -74,5 +77,5 @@
 </div>
 
 <style>
-  @import '../../css/components/dashboard.css';
+  @import '$lib/styles/components/dashboard.css';
 </style>

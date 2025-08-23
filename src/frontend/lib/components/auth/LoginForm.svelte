@@ -1,26 +1,40 @@
-<script>
+<script lang="ts">
+  import type { AuthState } from '$lib/logic/authLogic';
+  import { formValidators, type TouchedFields } from '$lib/logic/formValidation';
+  import { getLoadingButtonText, hasAllRequiredFields } from '$lib/logic/uiUtils';
   import { createEventDispatcher } from 'svelte';
-  import { formValidators } from '../../logic/formValidation.ts';
-  import { getLoadingButtonText, isFormReady } from '../../logic/uiUtils.ts';
   import FormField from '../shared/FormField.svelte';
 
-  export let authState;
-  export let onLogin;
+  export let authState: AuthState;
+  export let onLogin: (email: string, password: string) => Promise<void>;
 
   const dispatch = createEventDispatcher();
 
   let email = '';
   let password = '';
+  let touchedFields: TouchedFields = {};
+  let showAllErrors = false;
 
-  $: validationErrors = formValidators.login(email, password);
-  $: canSubmit = isFormReady(['email', 'password'], { email, password }, validationErrors);
+  $: validationErrors = formValidators.login(email, password, touchedFields, showAllErrors);
+  $: canSubmit =
+    hasAllRequiredFields(['email', 'password'], { email, password }) &&
+    Object.keys(validationErrors).length === 0;
 
-  async function handleSubmit() {
-    if (!canSubmit) return;
+  function handleFieldBlur(fieldName: string): void {
+    touchedFields[fieldName] = true;
+    touchedFields = { ...touchedFields }; // Trigger reactivity
+  }
+
+  async function handleSubmit(): Promise<void> {
+    showAllErrors = true;
+
+    if (!canSubmit) {
+      return;
+    }
 
     try {
       await onLogin(email, password);
-    } catch (error) {
+    } catch {
       // Error is handled by the auth logic
     }
   }
@@ -42,6 +56,7 @@
       required
       disabled={authState.isLoading}
       error={validationErrors.email}
+      on:blur={() => handleFieldBlur('email')}
     />
 
     <FormField
@@ -53,6 +68,7 @@
       required
       disabled={authState.isLoading}
       error={validationErrors.password}
+      on:blur={() => handleFieldBlur('password')}
     />
 
     {#if authState.error}
@@ -75,5 +91,5 @@
 </div>
 
 <style>
-  @import '../../css/components/forms.css';
+  @import '$lib/styles/components/forms.css';
 </style>

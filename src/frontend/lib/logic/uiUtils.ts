@@ -16,6 +16,16 @@ export function isFormReady(
 }
 
 /**
+ * Check if all required fields have values (for validation purposes)
+ */
+export function hasAllRequiredFields(
+  requiredFields: string[],
+  values: Record<string, string>
+): boolean {
+  return requiredFields.every(field => values[field]?.trim());
+}
+
+/**
  * Format user greeting
  */
 export function formatUserGreeting(email: string): string {
