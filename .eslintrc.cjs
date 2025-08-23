@@ -75,5 +75,12 @@ module.exports = {
       },
     },
   ],
-  ignorePatterns: ['*.cjs', '*.svelte', 'dist/', 'node_modules/', 'vite.config.ts'],
+  ignorePatterns: [
+    '*.cjs',
+    '*.svelte',
+    'dist/',
+    'node_modules/',
+    'vite.config.ts',
+    'svelte.config.js',
+  ],
 };
