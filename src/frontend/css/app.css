@@ -1,31 +1,11 @@
-/* Main CSS Entry Point - Imports all modular CSS files */
+/* Main CSS Entry Point - Only import what we actually use */
 
 /* Core Styles */
 @import './components/variables.css';
 @import './components/base.css';
 
-/* Layout & Structure */
-@import './components/layout.css';
-
-/* Form Components */
+/* Components we actually use */
 @import './components/forms.css';
-
-/* Interactive Elements */
-@import './components/buttons.css';
-@import './components/interactive.css';
-
-/* Content Components */
-@import './components/cards.css';
-@import './components/chat.css';
-@import './components/progress.css';
-@import './components/achievements.css';
-@import './components/sections.css';
-
-/* Navigation */
-@import './components/navigation.css';
-
-/* Utilities */
-@import './components/utilities.css';
-
-/* Responsive Design */
-@import './components/responsive.css';
+@import './components/loading.css';
+@import './components/auth.css';
+@import './components/dashboard.css';

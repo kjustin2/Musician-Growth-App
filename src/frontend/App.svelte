@@ -8,20 +8,8 @@
   const { authState, logout, initialize } = authLogic;
 
   onMount(async () => {
-    console.log('App.svelte: onMount - initializing auth');
     await initialize();
-    console.log('App.svelte: initialization complete');
   });
-
-  // Add reactive logging for auth state changes
-  $: {
-    console.log('App.svelte: Auth state changed:', {
-      isLoading: $authState.isLoading,
-      isAuthenticated: $authState.isAuthenticated,
-      hasUser: !!$authState.user,
-      error: $authState.error,
-    });
-  }
 
   async function handleLogout() {
     await logout();

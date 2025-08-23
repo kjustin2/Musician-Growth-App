@@ -1,7 +1,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { validateRegistrationForm } from '../../logic/formValidation.ts';
+  import { formValidators } from '../../logic/formValidation.ts';
   import { getLoadingButtonText, isFormReady } from '../../logic/uiUtils.ts';
+  import FormField from '../shared/FormField.svelte';
 
   export let authState;
   export let onRegister;
@@ -11,29 +12,22 @@
   let email = '';
   let password = '';
   let confirmPassword = '';
-  let validationErrors = {};
 
-  // Real-time validation
-  $: validationErrors = validateRegistrationForm(email, password, confirmPassword);
+  $: validationErrors = formValidators.register(email, password, confirmPassword);
+  $: canSubmit = isFormReady(
+    ['email', 'password', 'confirmPassword'],
+    { email, password, confirmPassword },
+    validationErrors
+  );
 
   async function handleSubmit() {
-    if (!email || !password || !confirmPassword) {
-      return;
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (!canSubmit) return;
 
     try {
       await onRegister(email, password, confirmPassword);
     } catch (error) {
       // Error is handled by the auth logic
     }
-  }
-
-  function switchToLogin() {
-    dispatch('switchToLogin');
   }
 </script>
 
@@ -44,73 +38,44 @@
   </div>
 
   <form on:submit|preventDefault={handleSubmit}>
-    <div class="form-group">
-      <label for="email" class="form-label">Email Address</label>
-      <input
-        id="email"
-        type="email"
-        bind:value={email}
-        placeholder="Enter your email"
-        required
-        disabled={authState.isLoading}
-        class="form-input"
-        class:error={validationErrors.email}
-      />
-      {#if validationErrors.email}
-        <span class="error-message">{validationErrors.email}</span>
-      {/if}
-    </div>
+    <FormField
+      id="email"
+      type="email"
+      label="Email Address"
+      placeholder="Enter your email"
+      bind:value={email}
+      required
+      disabled={authState.isLoading}
+      error={validationErrors.email}
+    />
 
-    <div class="form-group">
-      <label for="password" class="form-label">Password</label>
-      <input
-        id="password"
-        type="password"
-        bind:value={password}
-        placeholder="Create a password"
-        required
-        disabled={authState.isLoading}
-        class="form-input"
-        class:error={validationErrors.password}
-      />
-      {#if validationErrors.password}
-        <span class="error-message">{validationErrors.password}</span>
-      {/if}
-    </div>
+    <FormField
+      id="password"
+      type="password"
+      label="Password"
+      placeholder="Create a password"
+      bind:value={password}
+      required
+      disabled={authState.isLoading}
+      error={validationErrors.password}
+    />
 
-    <div class="form-group">
-      <label for="confirmPassword" class="form-label">Confirm Password</label>
-      <input
-        id="confirmPassword"
-        type="password"
-        bind:value={confirmPassword}
-        placeholder="Confirm your password"
-        required
-        disabled={authState.isLoading}
-        class="form-input"
-        class:error={validationErrors.confirmPassword}
-      />
-      {#if validationErrors.confirmPassword}
-        <span class="error-message">{validationErrors.confirmPassword}</span>
-      {/if}
-    </div>
+    <FormField
+      id="confirmPassword"
+      type="password"
+      label="Confirm Password"
+      placeholder="Confirm your password"
+      bind:value={confirmPassword}
+      required
+      disabled={authState.isLoading}
+      error={validationErrors.confirmPassword}
+    />
 
     {#if authState.error}
-      <div class="form-error">
-        {authState.error}
-      </div>
+      <div class="form-error">{authState.error}</div>
     {/if}
 
-    <button
-      type="submit"
-      disabled={authState.isLoading ||
-        !isFormReady(
-          ['email', 'password', 'confirmPassword'],
-          { email, password, confirmPassword },
-          validationErrors
-        )}
-      class="submit-button"
-    >
+    <button type="submit" disabled={authState.isLoading || !canSubmit} class="submit-button">
       {getLoadingButtonText(authState.isLoading, 'Create Account', 'Creating Account...')}
     </button>
   </form>
@@ -118,7 +83,9 @@
   <div class="form-footer">
     <p>
       Already have an account?
-      <button type="button" class="link-button" on:click={switchToLogin}> Sign In </button>
+      <button type="button" class="link-button" on:click={() => dispatch('switchToLogin')}>
+        Sign In
+      </button>
     </p>
   </div>
 </div>

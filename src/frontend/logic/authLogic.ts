@@ -79,31 +79,22 @@ export function createAuthLogic() {
      * Login user
      */
     const login = async (email: string, password: string): Promise<void> => {
-        console.log('AuthLogic: login called', { email });
         debugLog('AuthLogic', 'Login attempt', { email });
 
         try {
-            // Clear previous errors
             clearError();
-            console.log('AuthLogic: setting loading to true');
             isLoading.set(true);
 
-            // Login user
-            console.log('AuthLogic: calling authService.login');
             const loggedInUser = await authService.login(email, password);
-            console.log('AuthLogic: authService.login successful, setting user', { userId: loggedInUser.id });
             user.set(loggedInUser);
 
             debugLog('AuthLogic', 'Login successful', { userId: loggedInUser.id });
-            console.log('AuthLogic: login process completed successfully');
         } catch (err) {
-            console.error('AuthLogic: login error', err);
             const errorMessage = err instanceof Error ? err.message : 'Login failed';
             error.set(errorMessage);
             errorLog('AuthLogic', 'Login failed', err, { email });
             throw err;
         } finally {
-            console.log('AuthLogic: setting loading to false');
             isLoading.set(false);
         }
     };
@@ -135,27 +126,21 @@ export function createAuthLogic() {
      * Initialize auth state (check for existing session)
      */
     const initialize = async (): Promise<void> => {
-        console.log('AuthLogic: initialize called');
         debugLog('AuthLogic', 'Initializing auth state');
 
         try {
-            console.log('AuthLogic: setting loading to true for initialization');
             isLoading.set(true);
             const currentUser = await authService.getCurrentUser();
-            console.log('AuthLogic: getCurrentUser result', { hasUser: Boolean(currentUser), userId: currentUser?.id });
             user.set(currentUser);
 
             debugLog('AuthLogic', 'Auth state initialized', {
                 isAuthenticated: currentUser !== null,
                 userId: currentUser?.id
             });
-            console.log('AuthLogic: initialization completed');
         } catch (err) {
-            console.error('AuthLogic: initialization error', err);
             errorLog('AuthLogic', 'Failed to initialize auth state', err);
             user.set(null);
         } finally {
-            console.log('AuthLogic: setting loading to false after initialization');
             isLoading.set(false);
         }
     };

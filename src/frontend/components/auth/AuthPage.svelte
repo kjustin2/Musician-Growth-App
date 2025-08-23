@@ -21,24 +21,7 @@
   }
 
   async function handleLogin(email, password) {
-    console.log('AuthPage: handleLogin called', { email });
-    try {
-      await login(email, password);
-      console.log('AuthPage: login successful');
-    } catch (error) {
-      console.error('AuthPage: login failed', error);
-      throw error;
-    }
-  }
-
-  // Add reactive logging for auth state changes in AuthPage
-  $: {
-    console.log('AuthPage: Auth state changed:', {
-      isLoading: $authState.isLoading,
-      isAuthenticated: $authState.isAuthenticated,
-      hasUser: !!$authState.user,
-      error: $authState.error,
-    });
+    await login(email, password);
   }
 
   async function handleRegister(email, password, confirmPassword) {

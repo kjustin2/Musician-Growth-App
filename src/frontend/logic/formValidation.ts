@@ -1,105 +1,70 @@
 /**
- * Shared form validation utilities
+ * Simplified form validation utilities
  */
 
 export interface ValidationErrors {
     [key: string]: string;
 }
 
-/**
- * Email validation - overloaded for different input types
- */
-export function validateEmail(email: string): string | null {
-    if (!email) { return null; }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return 'Please enter a valid email address';
-    }
-
-    return null;
-}
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Password validation for registration
+ * Validate individual fields
  */
-export function validatePassword(password: string): string | null {
-    if (!password) { return null; }
+export const validators = {
+    email: (email: string): string | null => {
+        if (!email) { return null; }
+        return EMAIL_REGEX.test(email) ? null : 'Please enter a valid email address';
+    },
 
-    if (password.length < 8) {
-        return 'Password must be at least 8 characters long';
+    password: (password: string): string | null => {
+        if (!password) { return null; }
+        if (password.length < 8) { return 'Password must be at least 8 characters long'; }
+        if (!/[A-Z]/.test(password)) { return 'Password must contain at least one uppercase letter'; }
+        if (!/[a-z]/.test(password)) { return 'Password must contain at least one lowercase letter'; }
+        if (!/[0-9]/.test(password)) { return 'Password must contain at least one number'; }
+        return null;
+    },
+
+    confirmPassword: (password: string, confirmPassword: string): string | null => {
+        if (!confirmPassword) { return null; }
+        return password === confirmPassword ? null : 'Passwords do not match';
     }
-
-    if (!/[A-Z]/.test(password)) {
-        return 'Password must contain at least one uppercase letter';
-    }
-
-    if (!/[a-z]/.test(password)) {
-        return 'Password must contain at least one lowercase letter';
-    }
-
-    if (!/[0-9]/.test(password)) {
-        return 'Password must contain at least one number';
-    }
-
-    return null;
-}
+};
 
 /**
- * Password confirmation validation
+ * Validate forms with field mapping
  */
-export function validatePasswordConfirmation(password: string, confirmPassword: string): string | null {
-    if (!confirmPassword) { return null; }
-
-    if (password !== confirmPassword) {
-        return 'Passwords do not match';
-    }
-
-    return null;
-}
-
-/**
- * Login form validation
- */
-export function validateLoginForm(email: string, password: string): ValidationErrors {
+export function validateForm(fields: Record<string, string>, rules: Record<string, (value: string, fields?: Record<string, string>) => string | null>): ValidationErrors {
     const errors: ValidationErrors = {};
 
-    const emailError = validateEmail(email);
-    if (emailError) {
-        errors.email = emailError;
-    }
-
-    if (password && password.length < 1) {
-        errors.password = 'Password is required';
+    for (const [field, validator] of Object.entries(rules)) {
+        const error = validator(fields[field], fields);
+        if (error) { errors[field] = error; }
     }
 
     return errors;
 }
 
 /**
- * Registration form validation
+ * Pre-configured form validators
  */
-export function validateRegistrationForm(
-    email: string,
-    password: string,
-    confirmPassword: string
-): ValidationErrors {
-    const errors: ValidationErrors = {};
+export const formValidators = {
+    login: (email: string, password: string): ValidationErrors => validateForm(
+        { email, password },
+        {
+            email: validators.email,
+            password: (pwd: string) => pwd ? null : 'Password is required'
+        }
+    ),
 
-    const emailError = validateEmail(email);
-    if (emailError) {
-        errors.email = emailError;
-    }
-
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-        errors.password = passwordError;
-    }
-
-    const confirmPasswordError = validatePasswordConfirmation(password, confirmPassword);
-    if (confirmPasswordError) {
-        errors.confirmPassword = confirmPasswordError;
-    }
-
-    return errors;
-}
+    register: (email: string, password: string, confirmPassword: string): ValidationErrors => validateForm(
+        { email, password, confirmPassword },
+        {
+            email: validators.email,
+            password: validators.password,
+            confirmPassword: (_: string, fields?: Record<string, string>) =>
+                fields ? validators.confirmPassword(fields.password, fields.confirmPassword) : null
+        }
+    )
+};
