@@ -18,6 +18,9 @@ const config = {
     paths: {
       base: process.env.NODE_ENV === 'production' ? '/Musician-Growth-App' : '',
     },
+    // Note: files.routes, files.lib, and files.appTemplate are deprecated
+    // but still functional. In newer versions, use the default structure or
+    // configure via vite.config.ts
     files: {
       routes: 'src/frontend/routes',
       lib: 'src/frontend/lib',

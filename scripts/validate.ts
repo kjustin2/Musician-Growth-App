@@ -36,7 +36,17 @@ const checks: ValidationCheck[] = [
 
 let hasErrors = false;
 
-// First, run auto-fixes (these don't fail validation)
+// First, ensure SvelteKit is synced
+console.log(chalk.yellow('🔄 Syncing SvelteKit...'));
+try {
+  execSync('npx svelte-kit sync', { stdio: 'inherit' });
+  console.log(chalk.green('✅ SvelteKit sync completed\n'));
+} catch {
+  console.log(chalk.red('❌ SvelteKit sync failed\n'));
+  hasErrors = true;
+}
+
+// Then, run auto-fixes (these don't fail validation)
 console.log(chalk.yellow('🔧 Running auto-fixes...'));
 
 try {
