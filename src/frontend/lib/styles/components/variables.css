@@ -22,8 +22,36 @@
   --border-radius: 12px;
   --border-radius-small: 8px;
 
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
+  /* Extended color system for onboarding */
+  --color-primary: #4285f4;
+  --color-primary-hover: #3367d6;
+  --color-primary-light: #e3f2fd;
+  --color-primary-rgb: 66, 133, 244;
+
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8f9fa;
+  --color-background-tertiary: #e9ecef;
+
+  --color-text-primary: #212529;
+  --color-text-secondary: #6c757d;
+  --color-text-muted: #adb5bd;
+
+  --color-border: #dee2e6;
+  --color-border-light: #e9ecef;
+
+  --color-success: #28a745;
+  --color-success-light: #d4edda;
+  --color-warning: #ffc107;
+  --color-warning-light: #fff3cd;
+  --color-error: #dc3545;
+  --color-error-light: #f8d7da;
+  --color-error-background: #f8d7da;
+
+  --color-info: #17a2b8;
+  --color-info-light: #d1ecf1;
+
+  color: var(--color-text-primary);
+  background-color: var(--color-background-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

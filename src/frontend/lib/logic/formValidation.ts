@@ -48,6 +48,44 @@ export const validators = {
     }
     return password === confirmPassword ? null : 'Passwords do not match';
   },
+
+  required: (value: string): string | null => {
+    return value && value.trim() ? null : 'This field is required';
+  },
+
+  requiredArray: (value: string[]): string | null => {
+    return value && value.length > 0 ? null : 'Please select at least one option';
+  },
+
+  maxLength:
+    (maxLength: number) =>
+    (value: string): string | null => {
+      if (!value) {
+        return null;
+      }
+      return value.length <= maxLength ? null : `Maximum ${maxLength} characters allowed`;
+    },
+
+  customInstrument: (primaryInstrument: string, customInstrument: string): string | null => {
+    if (primaryInstrument !== 'Other') {
+      return null;
+    }
+    return customInstrument && customInstrument.trim() ? null : 'Please specify your instrument';
+  },
+
+  bandName: (value: string): string | null => {
+    if (!value) {
+      return null;
+    }
+    return value.trim() ? null : 'Band name cannot be empty';
+  },
+
+  bandRole: (value: string): string | null => {
+    if (!value) {
+      return null;
+    }
+    return value.trim() ? null : 'Role cannot be empty';
+  },
 };
 
 /**
@@ -75,6 +113,83 @@ export function validateForm(
   }
 
   return errors;
+}
+
+/**
+ * Onboarding-specific validation
+ */
+export interface OnboardingValidationState {
+  primaryInstrument: string;
+  customInstrument: string;
+  playFrequency: string;
+  genres: string[];
+  bands: Array<{ name: string; role: string; instrument: string }>;
+}
+
+export function validateOnboardingStep(
+  step: 'instrument' | 'frequency' | 'genres' | 'bands',
+  data: OnboardingValidationState
+): ValidationErrors {
+  const errors: ValidationErrors = {};
+
+  switch (step) {
+    case 'instrument':
+      if (!data.primaryInstrument) {
+        errors.primaryInstrument = 'Please select an instrument';
+      } else if (data.primaryInstrument === 'Other' && !data.customInstrument?.trim()) {
+        errors.customInstrument = 'Please specify your instrument';
+      }
+      break;
+
+    case 'frequency':
+      if (!data.playFrequency) {
+        errors.playFrequency = 'Please select how often you play';
+      }
+      break;
+
+    case 'genres':
+      if (!data.genres || data.genres.length === 0) {
+        errors.genres = 'Please select at least one genre';
+      }
+      break;
+
+    case 'bands':
+      // Bands step is optional, but validate individual bands if they exist
+      if (data.bands?.length && data.bands.length > 0) {
+        data.bands.forEach((band, index) => {
+          if (band.name && !band.name.trim()) {
+            errors[`band_${index}_name`] = 'Band name cannot be empty';
+          }
+          if (band.role && !band.role.trim()) {
+            errors[`band_${index}_role`] = 'Role cannot be empty';
+          }
+          if (!band.instrument) {
+            errors[`band_${index}_instrument`] = 'Please select an instrument';
+          }
+        });
+      }
+      break;
+  }
+
+  return errors;
+}
+
+export function validateCompleteOnboarding(data: OnboardingValidationState): ValidationErrors {
+  const errors: ValidationErrors = {};
+
+  // Validate all required steps
+  const instrumentErrors = validateOnboardingStep('instrument', data);
+  const frequencyErrors = validateOnboardingStep('frequency', data);
+  const genresErrors = validateOnboardingStep('genres', data);
+  const bandsErrors = validateOnboardingStep('bands', data);
+
+  return {
+    ...errors,
+    ...instrumentErrors,
+    ...frequencyErrors,
+    ...genresErrors,
+    ...bandsErrors,
+  };
 }
 
 /**
@@ -117,4 +232,56 @@ export const formValidators = {
       touchedFields,
       showAllErrors
     ),
+
+  onboardingInstrument: (
+    primaryInstrument: string,
+    customInstrument: string,
+    touchedFields: TouchedFields = {},
+    showAllErrors: boolean = false
+  ): ValidationErrors => {
+    const data: OnboardingValidationState = {
+      primaryInstrument,
+      customInstrument,
+      playFrequency: '',
+      genres: [],
+      bands: [],
+    };
+    return showAllErrors || touchedFields.primaryInstrument || touchedFields.customInstrument
+      ? validateOnboardingStep('instrument', data)
+      : {};
+  },
+
+  onboardingFrequency: (
+    playFrequency: string,
+    touchedFields: TouchedFields = {},
+    showAllErrors: boolean = false
+  ): ValidationErrors => {
+    const data: OnboardingValidationState = {
+      primaryInstrument: '',
+      customInstrument: '',
+      playFrequency,
+      genres: [],
+      bands: [],
+    };
+    return showAllErrors || touchedFields.playFrequency
+      ? validateOnboardingStep('frequency', data)
+      : {};
+  },
+
+  onboardingGenres: (
+    genres: string[],
+    touchedFields: TouchedFields = {},
+    showAllErrors: boolean = false
+  ): ValidationErrors => {
+    const data: OnboardingValidationState = {
+      primaryInstrument: '',
+      customInstrument: '',
+      playFrequency: '',
+      genres,
+      bands: [],
+    };
+    return showAllErrors || touchedFields.genres
+      ? validateOnboardingStep('genres', data)
+      : {};
+  },
 };

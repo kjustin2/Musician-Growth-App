@@ -1,6 +1,7 @@
 <script lang="ts">
   import AuthPage from '$lib/components/auth/AuthPage.svelte';
   import Dashboard from '$lib/components/dashboard/Dashboard.svelte';
+  import OnboardingFlow from '$lib/components/onboarding/OnboardingFlow.svelte';
   import { createAuthLogic } from '$lib/logic/authLogic';
   import { onMount } from 'svelte';
 
@@ -14,6 +15,14 @@
   function handleLogout(): void {
     logout();
   }
+
+  function handleOnboardingComplete(): void {
+    // Refresh user data to get updated onboarding status
+    initialize();
+  }
+
+  $: needsOnboarding =
+    $authState.isAuthenticated && $authState.user && !$authState.user.onboardingCompleted;
 </script>
 
 <svelte:head>
@@ -30,6 +39,8 @@
       <div class="loading-spinner"></div>
       <p>Loading ChordLine...</p>
     </div>
+  {:else if needsOnboarding}
+    <OnboardingFlow user={$authState.user} on:complete={handleOnboardingComplete} />
   {:else if $authState.isAuthenticated && $authState.user}
     <Dashboard user={$authState.user} onLogout={handleLogout} />
   {:else}
