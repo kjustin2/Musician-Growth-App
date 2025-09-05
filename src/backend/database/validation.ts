@@ -51,17 +51,20 @@ export const validators = {
     },
 };
 
-export const validateUser = (data: Record<string, unknown>): void => {
-  if (!validators.required(data.email)) {
-    throw new ValidationError('Email is required');
+export const validateUser = (data: Record<string, unknown>, _isUpdate: boolean = false): void => {
+  // For updates, only validate fields that are present
+  if (data.email !== undefined) {
+    if (!validators.required(data.email)) {
+      throw new ValidationError('Email is required');
+    }
+    if (!validators.email(data.email as string)) {
+      throw new ValidationError('Invalid email format');
+    }
   }
-  if (!validators.email(data.email as string)) {
-    throw new ValidationError('Invalid email format');
-  }
-  if (!validators.nonEmptyString(data.passwordHash)) {
+  if (data.passwordHash !== undefined && !validators.nonEmptyString(data.passwordHash)) {
     throw new ValidationError('Password hash is required');
   }
-  if (!validators.boolean(data.onboardingCompleted)) {
+  if (data.onboardingCompleted !== undefined && !validators.boolean(data.onboardingCompleted)) {
     throw new ValidationError('Onboarding completion status is required');
   }
   if (data.primaryInstrument !== null && !validators.nonEmptyString(data.primaryInstrument)) {
@@ -240,7 +243,11 @@ export const validateGig = (data: Record<string, unknown>): void => {
   if (!validators.nonEmptyString(data.title)) {
     throw new ValidationError('Gig title is required');
   }
-  if (data.venueId !== undefined && data.venueId !== null && !validators.positiveNumber(data.venueId)) {
+  if (
+    data.venueId !== undefined &&
+    data.venueId !== null &&
+    !validators.positiveNumber(data.venueId)
+  ) {
     console.log('DEBUG: venueId value:', data.venueId, 'type:', typeof data.venueId);
     throw new ValidationError('Venue ID must be positive if provided');
   }

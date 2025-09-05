@@ -10,7 +10,10 @@
   export let onAddMember: (band: Band) => void;
   export let onViewDetails: (band: Band) => void;
 
-  let bandMemberships: Map<number, Array<BandMembership & { role: string; instrument: string }>> = new Map();
+  let bandMemberships: Map<
+    number,
+    Array<BandMembership & { role: string; instrument: string }>
+  > = new Map();
 
   onMount(async () => {
     await loadMemberships();
@@ -23,14 +26,14 @@
   async function loadMemberships(): Promise<void> {
     try {
       const membershipsMap = new Map();
-      
+
       for (const band of bands) {
         if (band.id) {
           const members = await bandMembershipService.findByBandId(band.id);
           membershipsMap.set(band.id, members);
         }
       }
-      
+
       bandMemberships = membershipsMap;
     } catch (error) {
       console.error('Failed to load band memberships:', error);
@@ -80,12 +83,14 @@
     {:else if bands.length === 0}
       <div class="empty-state">
         <p>No bands yet</p>
-        <p class="empty-subtitle">Create your first band to start collaborating with other musicians!</p>
+        <p class="empty-subtitle">
+          Create your first band to start collaborating with other musicians!
+        </p>
       </div>
     {:else}
       <div class="bands-grid">
         {#each bands as band (band.id)}
-          {@const members = band.id ? (bandMemberships.get(band.id) || []) : []}
+          {@const members = band.id ? bandMemberships.get(band.id) || [] : []}
           <div class="band-card">
             <div class="band-header">
               <div class="band-name">{band.name}</div>
@@ -96,9 +101,10 @@
 
             <div class="band-details">
               <div class="member-count">
-                👥 {members.length} {members.length === 1 ? 'member' : 'members'}
+                👥 {members.length}
+                {members.length === 1 ? 'member' : 'members'}
               </div>
-              
+
               {#if members.length > 0}
                 <div class="members-preview">
                   {#each members.slice(0, 3) as member}
@@ -111,9 +117,7 @@
                   {/if}
                 </div>
               {:else}
-                <div class="no-members">
-                  No members added yet
-                </div>
+                <div class="no-members">No members added yet</div>
               {/if}
             </div>
 
@@ -124,12 +128,8 @@
               <button class="add-member-button" on:click={() => handleAddMember(band)}>
                 Add Member
               </button>
-              <button class="edit-button" on:click={() => handleEdit(band)}>
-                Edit
-              </button>
-              <button class="delete-button" on:click={() => handleDelete(band)}>
-                Delete
-              </button>
+              <button class="edit-button" on:click={() => handleEdit(band)}> Edit </button>
+              <button class="delete-button" on:click={() => handleDelete(band)}> Delete </button>
             </div>
           </div>
         {/each}

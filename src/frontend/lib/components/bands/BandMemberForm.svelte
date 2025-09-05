@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { BandMembership, CreateBandMembership, Band } from '../../../../backend/database/types.js';
+  import type {
+    BandMembership,
+    CreateBandMembership,
+    Band,
+  } from '../../../../backend/database/types.js';
   import { INSTRUMENTS } from '../../../../backend/database/types.js';
 
   export let band: Band;
@@ -8,10 +12,10 @@
   export let onCancel: () => void;
 
   let isLoading = false;
-  let formData = {
+  const formData = {
     role: '',
     instrument: '',
-    joinedAt: new Date().toISOString().split('T')[0]
+    joinedAt: new Date().toISOString().split('T')[0],
   };
   let errors: Record<string, string> = {};
 
@@ -48,11 +52,10 @@
         instrument: formData.instrument,
         joinedAt: new Date(formData.joinedAt),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       await onSave(membershipData);
-
     } catch (error) {
       console.error('Failed to add member:', error);
       errors.submit = 'Failed to add member. Please try again.';

@@ -17,11 +17,14 @@
     dispatch('change');
   }
 
-  function isSelected(genre: string): boolean {
-    return selectedGenres.includes(genre);
-  }
-
   $: selectedCount = selectedGenres.length;
+  $: genreStates = availableGenres.reduce(
+    (acc, genre) => {
+      acc[genre] = selectedGenres.includes(genre);
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
 </script>
 
 <div class="genres-step">
@@ -36,47 +39,47 @@
   </div>
 
   <div class="genres-grid">
-    {#each availableGenres as genre}
-      <button
-        type="button"
-        class="genre-option"
-        class:selected={isSelected(genre)}
-        on:click={() => handleGenreToggle(genre)}
-      >
-        <div class="genre-icon">
-          {#if genre === 'Rock'}
-            🤘
-          {:else if genre === 'Pop'}
-            🎵
-          {:else if genre === 'Jazz'}
-            🎺
-          {:else if genre === 'Blues'}
-            🎸
-          {:else if genre === 'Country'}
-            🤠
-          {:else if genre === 'Classical'}
-            🎼
-          {:else if genre === 'Electronic'}
-            🎛️
-          {:else if genre === 'Hip Hop'}
-            🎤
-          {:else if genre === 'R&B'}
-            🎶
-          {:else if genre === 'Folk'}
-            🪕
-          {:else if genre === 'Metal'}
-            ⚡
-          {:else if genre === 'Indie'}
-            🎧
-          {:else}
-            🎭
-          {/if}
+    {#each availableGenres as genre (genre)}
+      <label class="genre-option">
+        <input
+          type="checkbox"
+          class="genre-checkbox"
+          checked={genreStates[genre]}
+          on:change={() => handleGenreToggle(genre)}
+        />
+        <div class="genre-content">
+          <div class="genre-icon">
+            {#if genre === 'Rock'}
+              🤘
+            {:else if genre === 'Pop'}
+              🎵
+            {:else if genre === 'Jazz'}
+              🎺
+            {:else if genre === 'Blues'}
+              🎸
+            {:else if genre === 'Country'}
+              🤠
+            {:else if genre === 'Classical'}
+              🎼
+            {:else if genre === 'Electronic'}
+              🎛️
+            {:else if genre === 'Hip Hop'}
+              🎤
+            {:else if genre === 'R&B'}
+              🎶
+            {:else if genre === 'Folk'}
+              🪕
+            {:else if genre === 'Metal'}
+              ⚡
+            {:else if genre === 'Indie'}
+              🎧
+            {:else}
+              🎭
+            {/if}
+          </div>
+          <span class="genre-name">{genre}</span>
         </div>
-        <span class="genre-name">{genre}</span>
-        {#if isSelected(genre)}
-          <div class="selected-check">✓</div>
-        {/if}
-      </button>
+      </label>
     {/each}
   </div>
 
@@ -145,10 +148,33 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .genre-option.selected {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary-light);
-    box-shadow: 0 2px 8px rgba(var(--color-primary-rgb), 0.2);
+  .genre-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .genre-checkbox:checked + .genre-content {
+    background-color: #e3f2fd;
+    border-color: #4285f4;
+    box-shadow: 0 2px 12px rgba(66, 133, 244, 0.3);
+    transform: scale(1.02);
+  }
+
+  .genre-option:has(.genre-checkbox:checked) {
+    border: 3px solid #4285f4;
+    background-color: #e3f2fd;
+    box-shadow: 0 2px 12px rgba(66, 133, 244, 0.3);
+    transform: scale(1.02);
+  }
+
+  .genre-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    width: 100%;
   }
 
   .genre-icon {
@@ -160,22 +186,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-text-primary);
-  }
-
-  .selected-check {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    width: 20px;
-    height: 20px;
-    background-color: var(--color-primary);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
   }
 
   .step-info {

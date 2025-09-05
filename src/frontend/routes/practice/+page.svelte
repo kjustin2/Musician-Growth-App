@@ -3,7 +3,7 @@
   import { get } from 'svelte/store';
   import { practiceService, type User } from '../../../backend/database/db.js';
   import type { Practice, CreatePractice } from '../../../backend/database/types.js';
-  import { userStore } from '../../lib/logic/authLogic.js';
+  import { userStore, logout } from '../../lib/logic/authLogic.js';
   import Navigation from '../../lib/components/shared/Navigation.svelte';
   import PracticeForm from '../../lib/components/practice/PracticeForm.svelte';
   import PracticeList from '../../lib/components/practice/PracticeList.svelte';
@@ -23,8 +23,10 @@
   });
 
   async function loadPractices(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       isLoading = true;
       if (selectedBandId) {
@@ -40,18 +42,20 @@
   }
 
   async function handleSavePractice(practiceData: CreatePractice): Promise<void> {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     try {
       if (editingPractice) {
         await practiceService.update(editingPractice.id!, {
           ...practiceData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         });
       } else {
         await practiceService.create(practiceData);
       }
-      
+
       await loadPractices();
       handleCancelForm();
     } catch (error) {
@@ -90,6 +94,10 @@
     selectedBandId = bandId;
     loadPractices();
   }
+
+  function handleLogout(): void {
+    logout();
+  }
 </script>
 
 <svelte:head>
@@ -97,8 +105,8 @@
 </svelte:head>
 
 {#if user}
-  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} />
-  
+  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
+
   <main class="practice-page">
     <div class="page-header">
       <h1>Practice Sessions</h1>

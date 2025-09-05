@@ -11,20 +11,22 @@
   $: filteredPractices = practices.filter(practice => {
     const practiceDate = new Date(practice.date);
     const now = new Date();
-    
+
     switch (filter) {
       case 'recent':
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(now.getDate() - 7);
         return practiceDate >= sevenDaysAgo;
-      
+
       case 'this-month':
-        return practiceDate.getMonth() === now.getMonth() && 
-               practiceDate.getFullYear() === now.getFullYear();
-      
+        return (
+          practiceDate.getMonth() === now.getMonth() &&
+          practiceDate.getFullYear() === now.getFullYear()
+        );
+
       case 'rated-high':
         return (practice.rating || 0) >= 4;
-      
+
       default:
         return true;
     }
@@ -49,14 +51,22 @@
   }
 
   function getRatingStars(rating?: number): string {
-    if (!rating) return '';
+    if (!rating) {
+      return '';
+    }
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 
   function getRatingColor(rating?: number): string {
-    if (!rating) return '#9ca3af';
-    if (rating >= 4) return '#10b981';
-    if (rating >= 3) return '#f59e0b';
+    if (!rating) {
+      return '#9ca3af';
+    }
+    if (rating >= 4) {
+      return '#10b981';
+    }
+    if (rating >= 3) {
+      return '#f59e0b';
+    }
     return '#ef4444';
   }
 
@@ -70,16 +80,18 @@
 
   // Calculate total practice time for current filter
   $: totalTime = filteredPractices.reduce((sum, practice) => sum + practice.duration, 0);
-  $: averageRating = filteredPractices.length > 0 
-    ? filteredPractices.reduce((sum, practice) => sum + (practice.rating || 0), 0) / filteredPractices.length
-    : 0;
+  $: averageRating =
+    filteredPractices.length > 0
+      ? filteredPractices.reduce((sum, practice) => sum + (practice.rating || 0), 0) /
+        filteredPractices.length
+      : 0;
 </script>
 
 <div class="practice-list">
   <div class="list-header">
     <div class="header-content">
       <h2>Your Practice Sessions</h2>
-      
+
       <div class="stats">
         <div class="stat">
           <span class="stat-value">{formatDuration(totalTime)}</span>
@@ -121,8 +133,10 @@
         This Month ({practices.filter(p => {
           const now = new Date();
           const practiceDate = new Date(p.date);
-          return practiceDate.getMonth() === now.getMonth() && 
-                 practiceDate.getFullYear() === now.getFullYear();
+          return (
+            practiceDate.getMonth() === now.getMonth() &&
+            practiceDate.getFullYear() === now.getFullYear()
+          );
         }).length})
       </button>
       <button
@@ -185,9 +199,7 @@
             </div>
 
             <div class="practice-actions">
-              <button class="edit-button" on:click={() => handleEdit(practice)}>
-                Edit
-              </button>
+              <button class="edit-button" on:click={() => handleEdit(practice)}> Edit </button>
               <button class="delete-button" on:click={() => handleDelete(practice)}>
                 Delete
               </button>

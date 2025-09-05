@@ -8,22 +8,32 @@
 
   let filter: 'all' | 'upcoming' | 'completed' | 'cancelled' = 'all';
 
+  // Get today's date at start of day for accurate comparison
+  $: today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   $: filteredGigs = gigs.filter(gig => {
     if (filter === 'all') {
       return true;
     }
     if (filter === 'upcoming') {
-      return gig.status === 'scheduled' && new Date(gig.date) > new Date();
+      const gigDate = new Date(gig.date);
+      gigDate.setHours(0, 0, 0, 0);
+      return gig.status === 'scheduled' && gigDate >= today;
     }
     return gig.status === filter;
   });
 
-  $: upcomingGigs = filteredGigs.filter(
-    gig => gig.status === 'scheduled' && new Date(gig.date) > new Date()
-  );
-  $: pastGigs = filteredGigs.filter(
-    gig => gig.status === 'completed' || new Date(gig.date) <= new Date()
-  );
+  $: upcomingGigs = gigs.filter(gig => {
+    const gigDate = new Date(gig.date);
+    gigDate.setHours(0, 0, 0, 0);
+    return gig.status === 'scheduled' && gigDate >= today;
+  });
+  $: pastGigs = gigs.filter(gig => {
+    const gigDate = new Date(gig.date);
+    gigDate.setHours(0, 0, 0, 0);
+    return gig.status === 'completed' || (gig.status === 'scheduled' && gigDate < today);
+  });
 
   function formatDate(date: Date): string {
     return new Intl.DateTimeFormat('en-US', {

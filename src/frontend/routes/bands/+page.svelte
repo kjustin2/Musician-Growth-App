@@ -2,8 +2,13 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { bandService, bandMembershipService, type User } from '../../../backend/database/db.js';
-  import type { Band, CreateBand, UpdateBand, CreateBandMembership } from '../../../backend/database/types.js';
-  import { userStore } from '../../lib/logic/authLogic.js';
+  import type {
+    Band,
+    CreateBand,
+    UpdateBand,
+    CreateBandMembership,
+  } from '../../../backend/database/types.js';
+  import { userStore, logout } from '../../lib/logic/authLogic.js';
   import Navigation from '../../lib/components/shared/Navigation.svelte';
   import BandForm from '../../lib/components/bands/BandForm.svelte';
   import BandMemberForm from '../../lib/components/bands/BandMemberForm.svelte';
@@ -28,8 +33,10 @@
   });
 
   async function loadBands(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       isLoading = true;
       bands = await bandService.findByUserId(user.id!);
@@ -41,7 +48,9 @@
   }
 
   async function handleSaveBand(bandData: CreateBand | UpdateBand): Promise<void> {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     try {
       if (editingBand) {
@@ -49,7 +58,7 @@
       } else {
         await bandService.create(bandData as CreateBand);
       }
-      
+
       await loadBands();
       handleCancelBandForm();
     } catch (error) {
@@ -62,7 +71,7 @@
     try {
       await bandMembershipService.create(membershipData);
       handleCancelMemberForm();
-      
+
       // Refresh the details view if it's open
       if (showBandDetails && selectedBand) {
         // The BandDetails component will handle its own refresh
@@ -80,7 +89,9 @@
   }
 
   async function handleDeleteBand(band: Band): Promise<void> {
-    if (confirm(`Are you sure you want to delete "${band.name}"? This will also remove all members.`)) {
+    if (
+      confirm(`Are you sure you want to delete "${band.name}"? This will also remove all members.`)
+    ) {
       try {
         // First remove all memberships
         if (band.id) {
@@ -89,7 +100,7 @@
             await bandMembershipService.delete(membership.id!);
           }
         }
-        
+
         // Then delete the band
         await bandService.delete(band.id!);
         await loadBands();
@@ -134,6 +145,10 @@
     selectedBandId = bandId;
     // Bands page doesn't filter by selected band like other pages
   }
+
+  function handleLogout(): void {
+    logout();
+  }
 </script>
 
 <svelte:head>
@@ -141,23 +156,16 @@
 </svelte:head>
 
 {#if user}
-  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} />
-  
+  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
+
   <main class="bands-page">
     <div class="page-header">
       <h1>Band Management</h1>
-      <button class="new-button" on:click={handleNewBand} disabled={isLoading}>
-        + New Band
-      </button>
+      <button class="new-button" on:click={handleNewBand} disabled={isLoading}> + New Band </button>
     </div>
 
     {#if showBandForm}
-      <BandForm
-        {user}
-        band={editingBand}
-        onSave={handleSaveBand}
-        onCancel={handleCancelBandForm}
-      />
+      <BandForm {user} band={editingBand} onSave={handleSaveBand} onCancel={handleCancelBandForm} />
     {/if}
 
     {#if showMemberForm && selectedBand}

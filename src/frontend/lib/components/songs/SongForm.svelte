@@ -12,7 +12,7 @@
   const dispatch = createEventDispatcher();
 
   let isLoading = false;
-  let formData = {
+  const formData = {
     title: song?.title || '',
     artist: song?.artist || '',
     genre: song?.genre || '',
@@ -21,7 +21,7 @@
     duration: song?.duration || null,
     status: song?.status || 'learning',
     notes: song?.notes || '',
-    recordingUrl: song?.recordingUrl || ''
+    recordingUrl: song?.recordingUrl || '',
   };
   let errors: Record<string, string> = {};
 
@@ -91,24 +91,23 @@
         notes: formData.notes.trim() || undefined,
         recordingUrl: formData.recordingUrl.trim() || undefined,
         userId: user.id!,
-        bandId: selectedBandId || undefined
+        bandId: selectedBandId || undefined,
       };
 
       if (song) {
         // Editing existing song
         await onSave({
           ...songData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as UpdateSong);
       } else {
         // Creating new song
         await onSave({
           ...songData,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as CreateSong);
       }
-
     } catch (error) {
       console.error('Failed to save song:', error);
       errors.submit = 'Failed to save song. Please try again.';
@@ -156,11 +155,7 @@
 
       <div class="form-group">
         <label for="genre">Genre</label>
-        <select
-          id="genre"
-          bind:value={formData.genre}
-          class="form-select"
-        >
+        <select id="genre" bind:value={formData.genre} class="form-select">
           <option value="">Select genre</option>
           {#each GENRES as genre}
             <option value={genre}>{genre}</option>
@@ -229,12 +224,7 @@
 
       <div class="form-group">
         <label for="status">Status</label>
-        <select
-          id="status"
-          bind:value={formData.status}
-          class="form-select"
-          required
-        >
+        <select id="status" bind:value={formData.status} class="form-select" required>
           {#each SONG_STATUSES as status}
             <option value={status.value}>{status.label}</option>
           {/each}

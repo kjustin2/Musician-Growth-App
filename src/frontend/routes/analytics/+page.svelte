@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { 
-    practiceService, 
-    gigService, 
-    songService, 
-    type User 
+  import {
+    practiceService,
+    gigService,
+    songService,
+    type User,
   } from '../../../backend/database/db.js';
   import type { Practice, Gig, Song } from '../../../backend/database/types.js';
-  import { userStore } from '../../lib/logic/authLogic.js';
+  import { userStore, logout } from '../../lib/logic/authLogic.js';
   import Navigation from '../../lib/components/shared/Navigation.svelte';
   import PracticeStats from '../../lib/components/analytics/PracticeStats.svelte';
   import GigStats from '../../lib/components/analytics/GigStats.svelte';
@@ -29,15 +29,13 @@
   });
 
   async function loadAllData(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       isLoading = true;
-      await Promise.all([
-        loadPractices(),
-        loadGigs(),
-        loadSongs()
-      ]);
+      await Promise.all([loadPractices(), loadGigs(), loadSongs()]);
     } catch (error) {
       console.error('Failed to load analytics data:', error);
     } finally {
@@ -46,8 +44,10 @@
   }
 
   async function loadPractices(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       if (selectedBandId) {
         practices = await practiceService.findByBandId(selectedBandId);
@@ -61,8 +61,10 @@
   }
 
   async function loadGigs(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       if (selectedBandId) {
         gigs = await gigService.findByBandId(selectedBandId);
@@ -76,8 +78,10 @@
   }
 
   async function loadSongs(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       if (selectedBandId) {
         songs = await songService.findByBandId(selectedBandId);
@@ -95,14 +99,18 @@
     loadAllData();
   }
 
+  function handleLogout(): void {
+    logout();
+  }
+
   // Calculate summary stats
   $: totalPracticeHours = practices.reduce((sum, practice) => sum + practice.duration, 0) / 60;
   $: totalEarnings = gigs
     .filter(gig => gig.status === 'completed')
     .reduce((sum, gig) => sum + (gig.earnings || 0), 0);
   $: masteredSongs = songs.filter(song => song.status === 'mastered').length;
-  $: upcomingGigs = gigs.filter(gig => 
-    gig.status === 'scheduled' && new Date(gig.date) > new Date()
+  $: upcomingGigs = gigs.filter(
+    gig => gig.status === 'scheduled' && new Date(gig.date) > new Date()
   ).length;
 </script>
 
@@ -111,8 +119,8 @@
 </svelte:head>
 
 {#if user}
-  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} />
-  
+  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
+
   <main class="analytics-page">
     <div class="page-header">
       <h1>Your Musical Journey</h1>
@@ -175,7 +183,9 @@
         {:else}
           <div class="empty-section">
             <h3>Practice Statistics</h3>
-            <p>No practice sessions logged yet. <a href="/practice">Start tracking your practice!</a></p>
+            <p>
+              No practice sessions logged yet. <a href="/practice">Start tracking your practice!</a>
+            </p>
           </div>
         {/if}
 

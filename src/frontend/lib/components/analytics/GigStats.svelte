@@ -10,7 +10,7 @@
     upcomingGigs: 0,
     completedGigs: 0,
     monthlyEarnings: [] as Array<{ month: string; earnings: number; gigs: number }>,
-    topVenues: [] as Array<{ venue: string; gigs: number; earnings: number }>
+    topVenues: [] as Array<{ venue: string; gigs: number; earnings: number }>,
   };
 
   $: if (gigs.length > 0) {
@@ -20,17 +20,27 @@
   function calculateStats(): void {
     const totalGigs = gigs.length;
     const completedGigs = gigs.filter(gig => gig.status === 'completed').length;
-    const upcomingGigs = gigs.filter(gig => gig.status === 'scheduled' && new Date(gig.date) > new Date()).length;
-    
+    const upcomingGigs = gigs.filter(
+      gig => gig.status === 'scheduled' && new Date(gig.date) > new Date()
+    ).length;
+
     // Calculate earnings only from completed gigs
-    const completedGigsWithEarnings = gigs.filter(gig => gig.status === 'completed' && gig.earnings);
-    const totalEarnings = completedGigsWithEarnings.reduce((sum, gig) => sum + (gig.earnings || 0), 0);
-    const averageEarnings = completedGigsWithEarnings.length > 0 ? Math.round((totalEarnings / completedGigsWithEarnings.length) * 100) / 100 : 0;
+    const completedGigsWithEarnings = gigs.filter(
+      gig => gig.status === 'completed' && gig.earnings
+    );
+    const totalEarnings = completedGigsWithEarnings.reduce(
+      (sum, gig) => sum + (gig.earnings || 0),
+      0
+    );
+    const averageEarnings =
+      completedGigsWithEarnings.length > 0
+        ? Math.round((totalEarnings / completedGigsWithEarnings.length) * 100) / 100
+        : 0;
 
     // Calculate monthly earnings trend (last 6 months)
     const monthlyData: Record<string, { earnings: number; gigs: number }> = {};
     const now = new Date();
-    
+
     // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -43,7 +53,7 @@
       .forEach(gig => {
         const gigDate = new Date(gig.date);
         const key = gigDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-        
+
         if (monthlyData[key]) {
           monthlyData[key].gigs += 1;
           monthlyData[key].earnings += gig.earnings || 0;
@@ -53,12 +63,12 @@
     const monthlyEarnings = Object.entries(monthlyData).map(([month, data]) => ({
       month,
       earnings: Math.round(data.earnings * 100) / 100,
-      gigs: data.gigs
+      gigs: data.gigs,
     }));
 
     // Calculate top venues
     const venueData: Record<string, { gigs: number; earnings: number }> = {};
-    
+
     gigs
       .filter(gig => gig.status === 'completed')
       .forEach(gig => {
@@ -74,7 +84,7 @@
       .map(([venue, data]) => ({
         venue,
         gigs: data.gigs,
-        earnings: Math.round(data.earnings * 100) / 100
+        earnings: Math.round(data.earnings * 100) / 100,
       }))
       .sort((a, b) => b.earnings - a.earnings)
       .slice(0, 5);
@@ -86,7 +96,7 @@
       upcomingGigs,
       completedGigs,
       monthlyEarnings,
-      topVenues
+      topVenues,
     };
   }
 
@@ -130,9 +140,15 @@
         {#each stats.monthlyEarnings as month}
           <div class="earnings-month">
             <div class="earnings-bar">
-              <div 
-                class="earnings-fill" 
-                style="height: {month.earnings > 0 ? Math.min((month.earnings / Math.max(...stats.monthlyEarnings.map(m => m.earnings))) * 100, 100) : 0}%"
+              <div
+                class="earnings-fill"
+                style="height: {month.earnings > 0
+                  ? Math.min(
+                      (month.earnings / Math.max(...stats.monthlyEarnings.map(m => m.earnings))) *
+                        100,
+                      100
+                    )
+                  : 0}%"
                 title="{formatCurrency(month.earnings)} from {month.gigs} gigs"
               ></div>
             </div>

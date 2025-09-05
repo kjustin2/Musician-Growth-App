@@ -10,13 +10,13 @@
   export let onCancel: () => void;
 
   let isLoading = false;
-  let formData = {
+  const formData = {
     date: new Date().toISOString().split('T')[0],
     duration: 60,
     focusAreas: [] as string[],
     songsWorkedOn: [] as number[],
     notes: '',
-    rating: 3
+    rating: 3,
   };
   let availableSongs: Song[] = [];
   let errors: Record<string, string> = {};
@@ -30,7 +30,7 @@
       if (selectedBandId) {
         availableSongs = await songService.findByBandId(selectedBandId);
       } else {
-        availableSongs = await songService.findByUserId(user.id!);
+        availableSongs = await songService.findByUserId(user.id);
       }
     } catch (error) {
       console.error('Failed to load songs:', error);
@@ -93,7 +93,7 @@
         userId: user.id!,
         bandId: selectedBandId || undefined,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       await onSave(practiceData);
@@ -311,7 +311,7 @@
     cursor: pointer;
   }
 
-  .checkbox-item input[type="checkbox"] {
+  .checkbox-item input[type='checkbox'] {
     width: auto;
     margin: 0;
   }

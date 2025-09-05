@@ -43,7 +43,6 @@
 <div class="form-container">
   <div class="form-header">
     <h1>Welcome Back</h1>
-    <p>Sign in to your ChordLine account</p>
   </div>
 
   <form on:submit|preventDefault={handleSubmit}>

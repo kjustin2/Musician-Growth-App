@@ -46,6 +46,9 @@ import {
   validateVenue,
 } from './validation';
 
+// Re-export types for convenience
+export type { User };
+
 /**
  * Database class
  */
@@ -149,11 +152,23 @@ export abstract class EntityService<
     }
   }
 
+  /**
+   * Alias for add method for backward compatibility
+   */
+  async create(data: TCreate): Promise<number> {
+    return this.add(data);
+  }
+
   async update(id: number, changes: TUpdate): Promise<void> {
     try {
       const updateData = this.addTimestamps(changes as Record<string, unknown>, true);
       this.trimStrings(updateData);
-      this.validator({ ...updateData, id }); // Validate with id for context
+      // For user validation, pass isUpdate flag, for others use standard validation
+      if (this.entityName === 'User') {
+        (this.validator as any)({ ...updateData, id }, true);
+      } else {
+        this.validator({ ...updateData, id }); // Validate with id for context
+      }
 
       await this.table.update(id, updateData);
       await this.load(); // Reload to update store
@@ -255,6 +270,10 @@ export class UserService extends EntityService<User, CreateUser, UpdateUser> {
       genres: [],
     };
     return super.add(normalizedData);
+  }
+
+  override async create(data: CreateUser): Promise<number> {
+    return this.add(data);
   }
 
   async updateOnboarding(
@@ -464,7 +483,11 @@ export class GigService extends EntityService<Gig, CreateGig, UpdateGig> {
     if (bandId) {
       gigs = await db.gigs.where('[userId+bandId]').equals([userId, bandId]).toArray();
     } else {
-      gigs = await db.gigs.where('userId').equals(userId).and(gig => !gig.bandId).toArray();
+      gigs = await db.gigs
+        .where('userId')
+        .equals(userId)
+        .and(gig => !gig.bandId)
+        .toArray();
     }
     return gigs.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
@@ -509,7 +532,11 @@ export class PracticeService extends EntityService<Practice, CreatePractice, Upd
     if (bandId) {
       practices = await db.practices.where('[userId+bandId]').equals([userId, bandId]).toArray();
     } else {
-      practices = await db.practices.where('userId').equals(userId).and(practice => !practice.bandId).toArray();
+      practices = await db.practices
+        .where('userId')
+        .equals(userId)
+        .and(practice => !practice.bandId)
+        .toArray();
     }
     return practices.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
@@ -570,7 +597,11 @@ export class GoalService extends EntityService<Goal, CreateGoal, UpdateGoal> {
     if (bandId) {
       goals = await db.goals.where('[userId+bandId]').equals([userId, bandId]).toArray();
     } else {
-      goals = await db.goals.where('userId').equals(userId).and(goal => !goal.bandId).toArray();
+      goals = await db.goals
+        .where('userId')
+        .equals(userId)
+        .and(goal => !goal.bandId)
+        .toArray();
     }
     return goals.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }

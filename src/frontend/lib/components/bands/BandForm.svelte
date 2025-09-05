@@ -7,8 +7,8 @@
   export let onCancel: () => void;
 
   let isLoading = false;
-  let formData = {
-    name: band?.name || ''
+  const formData = {
+    name: band?.name || '',
   };
   let errors: Record<string, string> = {};
 
@@ -32,24 +32,23 @@
 
       const bandData = {
         name: formData.name.trim(),
-        userId: user.id!
+        userId: user.id!,
       };
 
       if (band) {
         // Editing existing band
         await onSave({
           ...bandData,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as UpdateBand);
       } else {
         // Creating new band
         await onSave({
           ...bandData,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as CreateBand);
       }
-
     } catch (error) {
       console.error('Failed to save band:', error);
       errors.submit = 'Failed to save band. Please try again.';

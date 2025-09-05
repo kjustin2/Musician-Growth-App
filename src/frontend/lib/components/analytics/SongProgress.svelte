@@ -9,7 +9,7 @@
     readySongs: 0,
     masteredSongs: 0,
     genreDistribution: [] as Array<{ genre: string; count: number; percentage: number }>,
-    recentProgress: [] as Array<{ title: string; status: string; progress: string }>
+    recentProgress: [] as Array<{ title: string; status: string; progress: string }>,
   };
 
   $: if (songs.length > 0) {
@@ -33,7 +33,7 @@
       .map(([genre, count]) => ({
         genre,
         count,
-        percentage: Math.round((count / totalSongs) * 100)
+        percentage: Math.round((count / totalSongs) * 100),
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
@@ -49,7 +49,7 @@
       .map(song => ({
         title: song.title,
         status: song.status,
-        progress: getProgressText(song.status)
+        progress: getProgressText(song.status),
       }));
 
     stats = {
@@ -58,7 +58,7 @@
       readySongs,
       masteredSongs,
       genreDistribution,
-      recentProgress
+      recentProgress,
     };
   }
 
@@ -89,9 +89,10 @@
   }
 
   // Calculate completion percentage
-  $: completionPercentage = stats.totalSongs > 0 
-    ? Math.round(((stats.readySongs + stats.masteredSongs) / stats.totalSongs) * 100)
-    : 0;
+  $: completionPercentage =
+    stats.totalSongs > 0
+      ? Math.round(((stats.readySongs + stats.masteredSongs) / stats.totalSongs) * 100)
+      : 0;
 </script>
 
 <div class="song-progress">
@@ -100,14 +101,7 @@
   <div class="progress-overview">
     <div class="progress-circle">
       <svg width="120" height="120" viewBox="0 0 42 42">
-        <circle
-          cx="21"
-          cy="21"
-          r="15.5"
-          fill="transparent"
-          stroke="#e5e7eb"
-          stroke-width="3"
-        />
+        <circle cx="21" cy="21" r="15.5" fill="transparent" stroke="#e5e7eb" stroke-width="3" />
         <circle
           cx="21"
           cy="21"
@@ -151,10 +145,7 @@
           <div class="genre-item">
             <span class="genre-name">{genre.genre}</span>
             <div class="genre-bar">
-              <div 
-                class="genre-fill" 
-                style="width: {genre.percentage}%"
-              ></div>
+              <div class="genre-fill" style="width: {genre.percentage}%"></div>
             </div>
             <span class="genre-count">{genre.count} ({genre.percentage}%)</span>
           </div>

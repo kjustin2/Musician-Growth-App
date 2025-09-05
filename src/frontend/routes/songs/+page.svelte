@@ -3,7 +3,7 @@
   import { get } from 'svelte/store';
   import { songService, type User } from '../../../backend/database/db.js';
   import type { Song, CreateSong, UpdateSong } from '../../../backend/database/types.js';
-  import { userStore } from '../../lib/logic/authLogic.js';
+  import { userStore, logout } from '../../lib/logic/authLogic.js';
   import Navigation from '../../lib/components/shared/Navigation.svelte';
   import SongForm from '../../lib/components/songs/SongForm.svelte';
   import SongList from '../../lib/components/songs/SongList.svelte';
@@ -23,8 +23,10 @@
   });
 
   async function loadSongs(): Promise<void> {
-    if (!user) return;
-    
+    if (!user) {
+      return;
+    }
+
     try {
       isLoading = true;
       if (selectedBandId) {
@@ -40,7 +42,9 @@
   }
 
   async function handleSaveSong(songData: CreateSong | UpdateSong): Promise<void> {
-    if (!user) return;
+    if (!user) {
+      return;
+    }
 
     try {
       if (editingSong) {
@@ -48,7 +52,7 @@
       } else {
         await songService.create(songData as CreateSong);
       }
-      
+
       await loadSongs();
       handleCancelForm();
     } catch (error) {
@@ -87,6 +91,10 @@
     selectedBandId = bandId;
     loadSongs();
   }
+
+  function handleLogout(): void {
+    logout();
+  }
 </script>
 
 <svelte:head>
@@ -94,14 +102,12 @@
 </svelte:head>
 
 {#if user}
-  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} />
-  
+  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
+
   <main class="songs-page">
     <div class="page-header">
       <h1>Song Library</h1>
-      <button class="new-button" on:click={handleNewSong} disabled={isLoading}>
-        + Add Song
-      </button>
+      <button class="new-button" on:click={handleNewSong} disabled={isLoading}> + Add Song </button>
     </div>
 
     {#if showForm}
@@ -114,12 +120,7 @@
       />
     {/if}
 
-    <SongList
-      {songs}
-      {isLoading}
-      onEdit={handleEditSong}
-      onDelete={handleDeleteSong}
-    />
+    <SongList {songs} {isLoading} onEdit={handleEditSong} onDelete={handleDeleteSong} />
   </main>
 {:else}
   <div class="auth-required">

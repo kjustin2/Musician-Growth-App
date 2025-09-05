@@ -1,25 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/stores';
+  import { get } from 'svelte/store';
   import Navigation from '$lib/components/shared/Navigation.svelte';
   import GigList from '$lib/components/gigs/GigList.svelte';
   import GigForm from '$lib/components/gigs/GigForm.svelte';
   import { gigService } from '../../../backend/database/db.js';
+  import { userStore, logout } from '../../lib/logic/authLogic.js';
   import type { User, Gig } from '../../../backend/database/types.js';
 
-  // Mock user for now - in a real app this would come from auth
-  const user: User = {
-    id: 1,
-    email: 'user@example.com',
-    passwordHash: '',
-    onboardingCompleted: true,
-    primaryInstrument: 'Guitar',
-    playFrequency: 'weekly',
-    genres: ['Rock'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
+  let user: User | null = null;
   let selectedBandId: number | null = null;
   let gigs: Gig[] = [];
   let showForm = false;
@@ -27,13 +16,20 @@
   let isLoading = true;
 
   onMount(async () => {
-    await loadGigs();
+    user = get(userStore);
+    if (user) {
+      await loadGigs();
+    }
   });
 
   async function loadGigs(): Promise<void> {
+    if (!user) {
+      return;
+    }
+
     try {
       isLoading = true;
-      gigs = await gigService.findByUserAndBand(user.id!, selectedBandId);
+      gigs = await gigService.findByUserAndBand(user.id!, selectedBandId ?? undefined);
     } catch (error) {
       console.error('Failed to load gigs:', error);
     } finally {
@@ -80,8 +76,7 @@
   }
 
   function handleLogout(): void {
-    // Mock logout
-    console.log('Logout clicked');
+    logout();
   }
 </script>
 
@@ -89,40 +84,77 @@
   <title>Gigs - ChordLine</title>
 </svelte:head>
 
-<div class="gigs-page">
-  <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
+{#if user}
+  <div class="gigs-page">
+    <Navigation {user} {selectedBandId} onBandChange={handleBandChange} onLogout={handleLogout} />
 
-  <main class="gigs-main">
-    <div class="page-header">
-      <div class="header-content">
-        <h1>Gigs</h1>
-        <button class="new-gig-button" on:click={handleNewGig} disabled={showForm}>
-          + New Gig
-        </button>
-      </div>
-    </div>
-
-    <div class="gigs-content">
-      {#if showForm}
-        <div class="form-section">
-          <GigForm
-            gig={editingGig}
-            {user}
-            bandId={selectedBandId}
-            onSave={handleGigSaved}
-            onCancel={handleFormCancel}
-          />
+    <main class="gigs-main">
+      <div class="page-header">
+        <div class="header-content">
+          <h1>Gigs</h1>
+          <button class="new-gig-button" on:click={handleNewGig} disabled={showForm}>
+            + New Gig
+          </button>
         </div>
-      {/if}
-
-      <div class="list-section">
-        <GigList {gigs} {isLoading} onEdit={handleEditGig} onDelete={handleDeleteGig} />
       </div>
-    </div>
-  </main>
-</div>
+
+      <div class="gigs-content">
+        {#if showForm}
+          <div class="form-section">
+            <GigForm
+              gig={editingGig}
+              {user}
+              bandId={selectedBandId}
+              onSave={handleGigSaved}
+              onCancel={handleFormCancel}
+            />
+          </div>
+        {/if}
+
+        <div class="list-section">
+          <GigList {gigs} {isLoading} onEdit={handleEditGig} onDelete={handleDeleteGig} />
+        </div>
+      </div>
+    </main>
+  </div>
+{:else}
+  <div class="auth-required">
+    <h1>Authentication Required</h1>
+    <p>Please <a href="/">log in</a> to access your gigs.</p>
+  </div>
+{/if}
 
 <style>
+  .auth-required {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .auth-required h1 {
+    font-size: 2rem;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+
+  .auth-required p {
+    font-size: 1.125rem;
+    color: #6b7280;
+  }
+
+  .auth-required a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .auth-required a:hover {
+    text-decoration: underline;
+  }
   .gigs-page {
     min-height: 100vh;
     background-color: #f8f9fa;

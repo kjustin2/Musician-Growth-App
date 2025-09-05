@@ -15,7 +15,10 @@
       "mcp__playwright__browser_type",
       "mcp__playwright__browser_handle_dialog",
       "mcp__playwright__browser_evaluate",
-      "mcp__playwright__browser_wait_for"
+      "mcp__playwright__browser_wait_for",
+      "Bash(pkill:*)",
+      "Bash(npm run check:*)",
+      "Bash(npx svelte-kit sync)"
     ],
     "deny": [],
     "ask": []

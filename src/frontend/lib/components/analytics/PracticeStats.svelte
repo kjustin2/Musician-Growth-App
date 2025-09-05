@@ -10,7 +10,7 @@
     averageSession: 0,
     averageRating: 0,
     topFocusAreas: [] as Array<{ area: string; count: number }>,
-    monthlyTrend: [] as Array<{ month: string; sessions: number; hours: number }>
+    monthlyTrend: [] as Array<{ month: string; sessions: number; hours: number }>,
   };
 
   $: if (practices.length > 0) {
@@ -21,11 +21,12 @@
     const totalSessions = practices.length;
     const totalMinutes = practices.reduce((sum, practice) => sum + practice.duration, 0);
     const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
-    const averageSession = totalSessions > 0 ? Math.round((totalMinutes / totalSessions)) : 0;
-    
+    const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+
     // Calculate average rating
     const ratingsSum = practices.reduce((sum, practice) => sum + (practice.rating || 0), 0);
-    const averageRating = totalSessions > 0 ? Math.round((ratingsSum / totalSessions) * 10) / 10 : 0;
+    const averageRating =
+      totalSessions > 0 ? Math.round((ratingsSum / totalSessions) * 10) / 10 : 0;
 
     // Calculate focus areas
     const focusAreaCounts: Record<string, number> = {};
@@ -34,7 +35,7 @@
         focusAreaCounts[area] = (focusAreaCounts[area] || 0) + 1;
       });
     });
-    
+
     const topFocusAreas = Object.entries(focusAreaCounts)
       .map(([area, count]) => ({ area, count }))
       .sort((a, b) => b.count - a.count)
@@ -43,7 +44,7 @@
     // Calculate monthly trend (last 6 months)
     const monthlyData: Record<string, { sessions: number; minutes: number }> = {};
     const now = new Date();
-    
+
     // Initialize last 6 months
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -54,7 +55,7 @@
     practices.forEach(practice => {
       const practiceDate = new Date(practice.date);
       const key = practiceDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      
+
       if (monthlyData[key]) {
         monthlyData[key].sessions += 1;
         monthlyData[key].minutes += practice.duration;
@@ -64,7 +65,7 @@
     const monthlyTrend = Object.entries(monthlyData).map(([month, data]) => ({
       month,
       sessions: data.sessions,
-      hours: Math.round((data.minutes / 60) * 10) / 10
+      hours: Math.round((data.minutes / 60) * 10) / 10,
     }));
 
     stats = {
@@ -73,7 +74,7 @@
       averageSession,
       averageRating,
       topFocusAreas,
-      monthlyTrend
+      monthlyTrend,
     };
   }
 </script>
@@ -111,8 +112,8 @@
           <div class="focus-item">
             <span class="focus-name">{item.area}</span>
             <div class="focus-bar">
-              <div 
-                class="focus-fill" 
+              <div
+                class="focus-fill"
                 style="width: {(item.count / stats.totalSessions) * 100}%"
               ></div>
             </div>
@@ -130,9 +131,14 @@
         {#each stats.monthlyTrend as month}
           <div class="trend-month">
             <div class="trend-bar">
-              <div 
-                class="trend-fill" 
-                style="height: {month.sessions > 0 ? Math.min((month.sessions / Math.max(...stats.monthlyTrend.map(m => m.sessions))) * 100, 100) : 0}%"
+              <div
+                class="trend-fill"
+                style="height: {month.sessions > 0
+                  ? Math.min(
+                      (month.sessions / Math.max(...stats.monthlyTrend.map(m => m.sessions))) * 100,
+                      100
+                    )
+                  : 0}%"
                 title="{month.sessions} sessions, {month.hours}h"
               ></div>
             </div>

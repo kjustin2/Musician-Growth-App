@@ -17,7 +17,7 @@
       if (filter !== 'all' && song.status !== filter) {
         return false;
       }
-      
+
       // Filter by search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -27,13 +27,13 @@
           song.genre?.toLowerCase().includes(query)
         );
       }
-      
+
       return true;
     })
     .sort((a, b) => {
       let aValue: string | number | Date;
       let bValue: string | number | Date;
-      
+
       switch (sortBy) {
         case 'title':
           aValue = a.title.toLowerCase();
@@ -54,14 +54,20 @@
         default:
           return 0;
       }
-      
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+
+      if (aValue < bValue) {
+        return sortOrder === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortOrder === 'asc' ? 1 : -1;
+      }
       return 0;
     });
 
   function formatDuration(seconds?: number): string {
-    if (!seconds) return '';
+    if (!seconds) {
+      return '';
+    }
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
@@ -111,17 +117,20 @@
   }
 
   // Calculate stats for current filter
-  $: statusCounts = songs.reduce((counts, song) => {
-    counts[song.status] = (counts[song.status] || 0) + 1;
-    return counts;
-  }, {} as Record<string, number>);
+  $: statusCounts = songs.reduce(
+    (counts, song) => {
+      counts[song.status] = (counts[song.status] || 0) + 1;
+      return counts;
+    },
+    {} as Record<string, number>
+  );
 </script>
 
 <div class="song-list">
   <div class="list-header">
     <div class="header-content">
       <h2>Your Song Library</h2>
-      
+
       <div class="stats">
         <div class="stat">
           <span class="stat-value">{songs.length}</span>
@@ -200,13 +209,21 @@
         <table class="songs-table">
           <thead>
             <tr>
-              <th class="sortable" class:active={sortBy === 'title'} on:click={() => toggleSort('title')}>
+              <th
+                class="sortable"
+                class:active={sortBy === 'title'}
+                on:click={() => toggleSort('title')}
+              >
                 Title
                 {#if sortBy === 'title'}
                   <span class="sort-indicator">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                 {/if}
               </th>
-              <th class="sortable" class:active={sortBy === 'artist'} on:click={() => toggleSort('artist')}>
+              <th
+                class="sortable"
+                class:active={sortBy === 'artist'}
+                on:click={() => toggleSort('artist')}
+              >
                 Artist
                 {#if sortBy === 'artist'}
                   <span class="sort-indicator">{sortOrder === 'asc' ? '▲' : '▼'}</span>
@@ -216,7 +233,11 @@
               <th>Key</th>
               <th>Tempo</th>
               <th>Duration</th>
-              <th class="sortable" class:active={sortBy === 'status'} on:click={() => toggleSort('status')}>
+              <th
+                class="sortable"
+                class:active={sortBy === 'status'}
+                on:click={() => toggleSort('status')}
+              >
                 Status
                 {#if sortBy === 'status'}
                   <span class="sort-indicator">{sortOrder === 'asc' ? '▲' : '▼'}</span>
@@ -232,7 +253,12 @@
                   <div>
                     {song.title}
                     {#if song.recordingUrl}
-                      <a href={song.recordingUrl} target="_blank" rel="noopener noreferrer" class="recording-link">
+                      <a
+                        href={song.recordingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="recording-link"
+                      >
                         🎵
                       </a>
                     {/if}
@@ -244,17 +270,17 @@
                 <td>{song.tempo ? `${song.tempo} BPM` : '-'}</td>
                 <td>{formatDuration(song.duration) || '-'}</td>
                 <td>
-                  <span 
-                    class="status-badge" 
-                    style="background-color: {getStatusColor(song.status)}22; color: {getStatusColor(song.status)}"
+                  <span
+                    class="status-badge"
+                    style="background-color: {getStatusColor(
+                      song.status
+                    )}22; color: {getStatusColor(song.status)}"
                   >
                     {getStatusLabel(song.status)}
                   </span>
                 </td>
                 <td class="actions">
-                  <button class="edit-button" on:click={() => handleEdit(song)}>
-                    Edit
-                  </button>
+                  <button class="edit-button" on:click={() => handleEdit(song)}> Edit </button>
                   <button class="delete-button" on:click={() => handleDelete(song)}>
                     Delete
                   </button>

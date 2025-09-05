@@ -2,6 +2,7 @@ import { bandMembershipService, bandService, userService } from '../../database/
 import type { OnboardingData } from '../../database/types.js';
 import { validateOnboardingData } from '../../database/validation.js';
 import { debugLog, errorLog, infoLog } from '../../logger.js';
+import { authService } from '../auth/AuthService.js';
 
 /**
  * Onboarding service to handle complete onboarding process
@@ -43,6 +44,9 @@ export class OnboardingService {
           });
         }
       }
+
+      // Refresh the current user in AuthService to pick up the updated onboarding status
+      await authService.refreshCurrentUser();
 
       infoLog('OnboardingService', 'Onboarding completed successfully', {
         userId,

@@ -138,7 +138,10 @@
 
   function handleVenueChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
-    const selectedVenueId = target.value && !isNaN(parseInt(target.value)) && parseInt(target.value) > 0 ? parseInt(target.value) : null;
+    const selectedVenueId =
+      target.value && !isNaN(parseInt(target.value)) && parseInt(target.value) > 0
+        ? parseInt(target.value)
+        : null;
 
     if (selectedVenueId) {
       venueId = selectedVenueId;

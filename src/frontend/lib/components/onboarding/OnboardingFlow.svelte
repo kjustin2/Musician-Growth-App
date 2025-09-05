@@ -38,8 +38,9 @@
       isSubmitting = true;
       await submitOnboarding();
       dispatch('complete');
-    } catch {
-      // Error is handled by the onboarding logic
+    } catch (err) {
+      // Error is handled by the onboarding logic, but log it
+      console.error('Onboarding submission failed:', err);
     } finally {
       isSubmitting = false;
     }

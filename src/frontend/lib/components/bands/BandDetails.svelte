@@ -62,7 +62,7 @@
 
 <div class="band-details-modal">
   <div class="modal-backdrop" on:click={handleClose}></div>
-  
+
   <div class="modal-content">
     <div class="modal-header">
       <h2>{band.name}</h2>
@@ -84,9 +84,7 @@
       <div class="members-section">
         <div class="section-header">
           <h3>Band Members</h3>
-          <button class="add-member-button" on:click={handleAddMember}>
-            + Add Member
-          </button>
+          <button class="add-member-button" on:click={handleAddMember}> + Add Member </button>
         </div>
 
         {#if isLoading}
@@ -110,10 +108,7 @@
                   </div>
                 </div>
                 <div class="member-actions">
-                  <button 
-                    class="remove-button" 
-                    on:click={() => handleRemoveMember(member)}
-                  >
+                  <button class="remove-button" on:click={() => handleRemoveMember(member)}>
                     Remove
                   </button>
                 </div>
@@ -125,12 +120,8 @@
     </div>
 
     <div class="modal-footer">
-      <button class="edit-band-button" on:click={handleEditBand}>
-        Edit Band
-      </button>
-      <button class="close-footer-button" on:click={handleClose}>
-        Close
-      </button>
+      <button class="edit-band-button" on:click={handleEditBand}> Edit Band </button>
+      <button class="close-footer-button" on:click={handleClose}> Close </button>
     </div>
   </div>
 </div>
