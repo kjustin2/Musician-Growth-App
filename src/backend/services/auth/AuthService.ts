@@ -36,13 +36,13 @@ export class AuthenticationService {
 
       // Hash password and create user
       const passwordHash = await PasswordHasher.hashPassword(password);
-      const userId = await userService.add({ 
-        email, 
+      const userId = await userService.add({
+        email,
         passwordHash,
         onboardingCompleted: false,
         primaryInstrument: null,
         playFrequency: null,
-        genres: []
+        genres: [],
       });
 
       // Get the created user

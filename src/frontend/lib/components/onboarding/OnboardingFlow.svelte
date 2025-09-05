@@ -15,7 +15,8 @@
   }>();
 
   const onboardingLogic = createOnboardingLogic(user.id!);
-  const { onboardingState, formData, nextStep, previousStep, submitOnboarding, clearError } = onboardingLogic;
+  const { onboardingState, formData, nextStep, previousStep, submitOnboarding, clearError } =
+    onboardingLogic;
 
   let isSubmitting = false;
 

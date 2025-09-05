@@ -174,3 +174,18 @@ export function createAuthLogic(): {
     clearError,
   };
 }
+
+// Create and export the default auth logic instance
+const authLogic = createAuthLogic();
+
+// Export individual stores and functions for convenience
+export const userStore = authLogic.user;
+export const isAuthenticated = authLogic.isAuthenticated;
+export const authState = authLogic.authState;
+export const login = authLogic.login;
+export const register = authLogic.register;
+export const logout = authLogic.logout;
+export const initialize = authLogic.initialize;
+
+// Initialize on module load
+initialize();

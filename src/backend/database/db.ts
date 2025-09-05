@@ -6,16 +6,45 @@ import type {
   BandMembership,
   CreateBand,
   CreateBandMembership,
+  CreateGig,
+  CreateGoal,
   CreateItem,
+  CreatePractice,
+  CreateSetList,
+  CreateSong,
   CreateUser,
+  CreateVenue,
+  Gig,
+  Goal,
   Item,
+  Practice,
+  SetList,
+  Song,
   UpdateBand,
   UpdateBandMembership,
+  UpdateGig,
+  UpdateGoal,
   UpdateItem,
+  UpdatePractice,
+  UpdateSetList,
+  UpdateSong,
   UpdateUser,
+  UpdateVenue,
   User,
+  Venue,
 } from './types';
-import { validateBand, validateBandMembership, validateItem, validateUser } from './validation';
+import {
+  validateBand,
+  validateBandMembership,
+  validateGig,
+  validateGoal,
+  validateItem,
+  validatePractice,
+  validateSetList,
+  validateSong,
+  validateUser,
+  validateVenue,
+} from './validation';
 
 /**
  * Database class
@@ -25,15 +54,27 @@ class AppDatabase extends Dexie {
   items!: Table<Item>;
   bands!: Table<Band>;
   bandMemberships!: Table<BandMembership>;
+  venues!: Table<Venue>;
+  songs!: Table<Song>;
+  setLists!: Table<SetList>;
+  gigs!: Table<Gig>;
+  practices!: Table<Practice>;
+  goals!: Table<Goal>;
 
   constructor() {
     super('ChordLineDatabase');
 
-    this.version(1).stores({
+    this.version(3).stores({
       users: '++id, email, createdAt, onboardingCompleted',
       items: '++id, name, description, createdAt',
       bands: '++id, userId, name, createdAt',
       bandMemberships: '++id, userId, bandId, createdAt',
+      venues: '++id, name, city, createdAt',
+      songs: '++id, title, userId, bandId, status, createdAt',
+      setLists: '++id, name, userId, bandId, createdAt',
+      gigs: '++id, title, userId, bandId, date, status, createdAt',
+      practices: '++id, userId, bandId, date, createdAt',
+      goals: '++id, title, userId, bandId, type, completed, createdAt',
     });
   }
 }
@@ -300,14 +341,278 @@ export class BandMembershipService extends EntityService<
   }
 }
 
+/**
+ * Venue service
+ */
+export class VenueService extends EntityService<Venue, CreateVenue, UpdateVenue> {
+  constructor() {
+    super(db.venues, 'Venue', validateVenue);
+  }
+
+  async findByName(name: string): Promise<Venue[]> {
+    return db.venues.where('name').startsWithIgnoreCase(name).toArray();
+  }
+
+  async findByCity(city: string): Promise<Venue[]> {
+    return db.venues.where('city').startsWithIgnoreCase(city).toArray();
+  }
+}
+
+/**
+ * Song service
+ */
+export class SongService extends EntityService<Song, CreateSong, UpdateSong> {
+  constructor() {
+    super(db.songs, 'Song', validateSong);
+  }
+
+  async findByUserId(userId: number): Promise<Song[]> {
+    return db.songs.where('userId').equals(userId).toArray();
+  }
+
+  async findByBandId(bandId: number): Promise<Song[]> {
+    return db.songs.where('bandId').equals(bandId).toArray();
+  }
+
+  async findByTitle(title: string): Promise<Song[]> {
+    return db.songs.where('title').startsWithIgnoreCase(title).toArray();
+  }
+
+  async findByStatus(status: 'learning' | 'ready' | 'mastered'): Promise<Song[]> {
+    return db.songs.where('status').equals(status).toArray();
+  }
+
+  async findByUserAndBand(userId: number, bandId?: number): Promise<Song[]> {
+    if (bandId) {
+      return db.songs.where('[userId+bandId]').equals([userId, bandId]).toArray();
+    }
+    return db.songs
+      .where('userId')
+      .equals(userId)
+      .and(song => !song.bandId)
+      .toArray();
+  }
+}
+
+/**
+ * SetList service
+ */
+export class SetListService extends EntityService<SetList, CreateSetList, UpdateSetList> {
+  constructor() {
+    super(db.setLists, 'SetList', validateSetList);
+  }
+
+  async findByUserId(userId: number): Promise<SetList[]> {
+    return db.setLists.where('userId').equals(userId).toArray();
+  }
+
+  async findByBandId(bandId: number): Promise<SetList[]> {
+    return db.setLists.where('bandId').equals(bandId).toArray();
+  }
+
+  async findByUserAndBand(userId: number, bandId?: number): Promise<SetList[]> {
+    if (bandId) {
+      return db.setLists.where('[userId+bandId]').equals([userId, bandId]).toArray();
+    }
+    return db.setLists
+      .where('userId')
+      .equals(userId)
+      .and(setList => !setList.bandId)
+      .toArray();
+  }
+
+  async getSetListWithSongs(
+    setListId: number
+  ): Promise<(SetList & { songDetails: Song[] }) | undefined> {
+    const setList = await db.setLists.get(setListId);
+    if (!setList) {
+      return undefined;
+    }
+
+    const songDetails: Song[] = [];
+    for (const setListSong of setList.songs.sort((a, b) => a.order - b.order)) {
+      const song = await db.songs.get(setListSong.songId);
+      if (song) {
+        songDetails.push(song);
+      }
+    }
+
+    return { ...setList, songDetails };
+  }
+}
+
+/**
+ * Gig service
+ */
+export class GigService extends EntityService<Gig, CreateGig, UpdateGig> {
+  constructor() {
+    super(db.gigs, 'Gig', validateGig);
+  }
+
+  async findByUserId(userId: number): Promise<Gig[]> {
+    const gigs = await db.gigs.where('userId').equals(userId).toArray();
+    return gigs.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async findByBandId(bandId: number): Promise<Gig[]> {
+    const gigs = await db.gigs.where('bandId').equals(bandId).toArray();
+    return gigs.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async findByUserAndBand(userId: number, bandId?: number): Promise<Gig[]> {
+    let gigs: Gig[];
+    if (bandId) {
+      gigs = await db.gigs.where('[userId+bandId]').equals([userId, bandId]).toArray();
+    } else {
+      gigs = await db.gigs.where('userId').equals(userId).and(gig => !gig.bandId).toArray();
+    }
+    return gigs.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async findUpcoming(userId: number, bandId?: number): Promise<Gig[]> {
+    const now = new Date();
+    const gigs = await this.findByUserAndBand(userId, bandId);
+    return gigs.filter(gig => gig.date > now && gig.status === 'scheduled');
+  }
+
+  async findCompleted(userId: number, bandId?: number): Promise<Gig[]> {
+    const gigs = await this.findByUserAndBand(userId, bandId);
+    return gigs.filter(gig => gig.status === 'completed');
+  }
+
+  async getTotalEarnings(userId: number, bandId?: number): Promise<number> {
+    const completedGigs = await this.findCompleted(userId, bandId);
+    return completedGigs.reduce((total, gig) => total + (gig.earnings || 0), 0);
+  }
+}
+
+/**
+ * Practice service
+ */
+export class PracticeService extends EntityService<Practice, CreatePractice, UpdatePractice> {
+  constructor() {
+    super(db.practices, 'Practice', validatePractice);
+  }
+
+  async findByUserId(userId: number): Promise<Practice[]> {
+    const practices = await db.practices.where('userId').equals(userId).toArray();
+    return practices.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async findByBandId(bandId: number): Promise<Practice[]> {
+    const practices = await db.practices.where('bandId').equals(bandId).toArray();
+    return practices.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async findByUserAndBand(userId: number, bandId?: number): Promise<Practice[]> {
+    let practices: Practice[];
+    if (bandId) {
+      practices = await db.practices.where('[userId+bandId]').equals([userId, bandId]).toArray();
+    } else {
+      practices = await db.practices.where('userId').equals(userId).and(practice => !practice.bandId).toArray();
+    }
+    return practices.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  async getTotalPracticeTime(userId: number, bandId?: number): Promise<number> {
+    const practices = await this.findByUserAndBand(userId, bandId);
+    return practices.reduce((total, practice) => total + practice.duration, 0);
+  }
+
+  async getPracticeStreak(userId: number, bandId?: number): Promise<number> {
+    const practices = await this.findByUserAndBand(userId, bandId);
+    if (practices.length === 0) {
+      return 0;
+    }
+
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < practices.length; i++) {
+      const practiceDate = new Date(practices[i]!.date);
+      practiceDate.setHours(0, 0, 0, 0);
+
+      const expectedDate = new Date(today);
+      expectedDate.setDate(today.getDate() - i);
+
+      if (practiceDate.getTime() === expectedDate.getTime()) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }
+}
+
+/**
+ * Goal service
+ */
+export class GoalService extends EntityService<Goal, CreateGoal, UpdateGoal> {
+  constructor() {
+    super(db.goals, 'Goal', validateGoal);
+  }
+
+  async findByUserId(userId: number): Promise<Goal[]> {
+    const goals = await db.goals.where('userId').equals(userId).toArray();
+    return goals.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async findByBandId(bandId: number): Promise<Goal[]> {
+    const goals = await db.goals.where('bandId').equals(bandId).toArray();
+    return goals.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async findByUserAndBand(userId: number, bandId?: number): Promise<Goal[]> {
+    let goals: Goal[];
+    if (bandId) {
+      goals = await db.goals.where('[userId+bandId]').equals([userId, bandId]).toArray();
+    } else {
+      goals = await db.goals.where('userId').equals(userId).and(goal => !goal.bandId).toArray();
+    }
+    return goals.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async findActive(userId: number, bandId?: number): Promise<Goal[]> {
+    const goals = await this.findByUserAndBand(userId, bandId);
+    return goals.filter(goal => !goal.completed);
+  }
+
+  async findCompleted(userId: number, bandId?: number): Promise<Goal[]> {
+    const goals = await this.findByUserAndBand(userId, bandId);
+    return goals.filter(goal => goal.completed);
+  }
+
+  async completeGoal(goalId: number): Promise<void> {
+    await this.update(goalId, {
+      completed: true,
+      completedAt: new Date(),
+    });
+  }
+}
+
 // Export service instances
 export const userService = new UserService();
 export const itemService = new ItemService();
 export const bandService = new BandService();
 export const bandMembershipService = new BandMembershipService();
+export const venueService = new VenueService();
+export const songService = new SongService();
+export const setListService = new SetListService();
+export const gigService = new GigService();
+export const practiceService = new PracticeService();
+export const goalService = new GoalService();
 
 // Export stores for reactive UI
 export const users = userService.store;
 export const items = itemService.store;
 export const bands = bandService.store;
 export const bandMemberships = bandMembershipService.store;
+export const venues = venueService.store;
+export const songs = songService.store;
+export const setLists = setListService.store;
+export const gigs = gigService.store;
+export const practices = practiceService.store;
+export const goals = goalService.store;

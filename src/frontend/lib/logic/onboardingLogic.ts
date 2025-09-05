@@ -1,4 +1,4 @@
-import { derived, writable, type Readable, type Writable } from 'svelte/store';
+import { derived, writable, get, type Readable, type Writable } from 'svelte/store';
 import {
   GENRES,
   INSTRUMENTS,
@@ -140,21 +140,17 @@ export function createOnboardingLogic(userId: number): {
   };
 
   const nextStep = (): void => {
-    const unsubscribe = currentStepIndex.subscribe(index => {
-      if (index < ONBOARDING_STEPS.length - 1) {
-        currentStep.set(ONBOARDING_STEPS[index + 1]!.id);
-      }
-      unsubscribe();
-    });
+    const index = get(currentStepIndex);
+    if (index < ONBOARDING_STEPS.length - 1) {
+      currentStep.set(ONBOARDING_STEPS[index + 1]!.id);
+    }
   };
 
   const previousStep = (): void => {
-    const unsubscribe = currentStepIndex.subscribe(index => {
-      if (index > 0) {
-        currentStep.set(ONBOARDING_STEPS[index - 1]!.id);
-      }
-      unsubscribe();
-    });
+    const index = get(currentStepIndex);
+    if (index > 0) {
+      currentStep.set(ONBOARDING_STEPS[index - 1]!.id);
+    }
   };
 
   const goToStep = (stepId: OnboardingStepId): void => {

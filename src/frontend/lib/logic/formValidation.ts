@@ -280,8 +280,6 @@ export const formValidators = {
       genres,
       bands: [],
     };
-    return showAllErrors || touchedFields.genres
-      ? validateOnboardingStep('genres', data)
-      : {};
+    return showAllErrors || touchedFields.genres ? validateOnboardingStep('genres', data) : {};
   },
 };
